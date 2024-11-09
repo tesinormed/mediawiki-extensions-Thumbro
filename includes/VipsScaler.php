@@ -88,14 +88,42 @@ class VipsScaler {
 			$actualSrcPath .= $vipsCommands[0]->makePageArgument( $params['page'] );
 		}
 
+		list( $major, $minor ) = File::splitMime( $file->getMimeType() );
+		if ( $major !== 'image' ) {
+			return;
+		}
+
+		$outputOptions = [];
+		switch( $minor ) {
+			case 'png':
+				// pngsave
+				$outputOptions += [
+					'strip' => 'true',
+					'filter' => 'VIPS_FOREIGN_PNG_FILTER_ALL',
+				];
+				break;
+		}
+
+		$outputOptionsString = '';
+		if ( count( $outputOptions ) > 0  ) {
+			// Format output options into [key=value,key=value] format
+			$outputOptionsString = '[';
+			foreach ( $outputOptions as $key => $value ) {
+				$outputOptionsString .= "$key=$value,";
+			}
+			$outputOptionsString = rtrim( $outputOptionsString, "," );
+			$outputOptionsString .= "]";
+		}
+
 		// Use vipsthumbnail directly instead of manually building the transformations
 		$cmd = [
+			// TODO: Make this configurable?
 			'/usr/bin/vipsthumbnail',
 			$actualSrcPath,
 			'--size',
 			$params['physicalWidth'] . 'x' . $params['physicalHeight'],
 			'-o',
-			$params['dstPath']
+			$params['dstPath'] . $outputOptionsString,
 		];
 
 		$result = Shell::command( $cmd )
