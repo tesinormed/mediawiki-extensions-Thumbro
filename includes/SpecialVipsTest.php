@@ -375,7 +375,6 @@ class SpecialVipsTest extends SpecialPage {
 		if ( $wgVipsThumbnailerHost === null || $request->getBool( 'noproxy' ) ) {
 			// No remote scaler, need to do it ourselves.
 			// Emulate the BitmapHandlerTransform hook
-
 			$tmpFile = VipsthumbnailCommand::makeTemp( $file->getExtension() );
 			$tmpFile->bind( $this );
 			$dstPath = $tmpFile->getPath();
