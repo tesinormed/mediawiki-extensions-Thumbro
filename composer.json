@@ -18,8 +18,5 @@
 		],
 		"phan": "phan -d . --long-progress-bar",
 		"phpcs": "phpcs -sp --cache"
-	},
-	"require": {
-		"jcupitt/vips" : "2.4.0"
 	}
 }
