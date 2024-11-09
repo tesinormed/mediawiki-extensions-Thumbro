@@ -87,8 +87,26 @@ class VipsScaler {
 		) {
 			$actualSrcPath .= $vipsCommands[0]->makePageArgument( $params['page'] );
 		}
+
+		// Use vipsthumbnail directly instead of manually building the transformations
+		$cmd = [
+			'/usr/bin/vipsthumbnail',
+			$actualSrcPath,
+			'--size',
+			$params['physicalWidth'] . 'x' . $params['physicalHeight'],
+			'-o',
+			$params['dstPath']
+		];
+
+		$result = Shell::command( $cmd )
+			->environment( [ 'IM_CONCURRENCY' => '1' ] )
+			->limits( [ 'filesize' => 409600 ] )
+			->includeStderr()
+			->execute();
+
 		// Execute the commands
 		/** @var VipsCommand $command */
+		/*
 		foreach ( $vipsCommands as $i => $command ) {
 			// Set input/output files
 			if ( $i == 0 && count( $vipsCommands ) == 1 ) {
@@ -117,6 +135,7 @@ class VipsScaler {
 		if ( !empty( $options['setcomment'] ) && !empty( $params['comment'] ) ) {
 			self::setJpegComment( $params['dstPath'], $params['comment'] );
 		}
+		*/
 
 		// Set the output variable
 		$mto = new ThumbnailImage( $file, $params['dstUrl'],
