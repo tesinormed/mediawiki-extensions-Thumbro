@@ -23,15 +23,14 @@
 
 namespace MediaWiki\Extension\VipsScaler;
 
-use Exception;
 use MediaWiki\Shell\Shell;
 use TempFSFile;
 
 /**
- * Wrapper class around the vips command, useful to chain multiple commands
+ * Wrapper class around the vipsthumbnail command, useful to chain multiple commands
  * with intermediate .v files
  */
-class VipsCommand {
+class VipsthumbnailCommand {
 
 	/** Flag to indicate that the output file should be a temporary .v file */
 	public const TEMP_OUTPUT = true;
@@ -49,7 +48,7 @@ class VipsCommand {
 	protected $removeInput;
 
 	/** @var string */
-	protected $vips;
+	protected $vipsthumbnail;
 
 	/** @var array */
 	protected $args;
@@ -57,24 +56,24 @@ class VipsCommand {
 	/**
 	 * Constructor
 	 *
-	 * @param string $vips Path to binary
+	 * @param string $vipsthumbnail Path to binary
 	 * @param array $args Array or arguments
 	 */
-	public function __construct( $vips, $args ) {
-		$this->vips = $vips;
+	public function __construct( $vipsthumbnail, $args ) {
+		$this->vipsthumbnail = $vipsthumbnail;
 		$this->args = $args;
 	}
 
 	/**
 	 * Set the input and output file of this command
 	 *
-	 * @param string|VipsCommand $input Input file name or an VipsCommand object to use the
+	 * @param string|VipsthumbnailCommand $input Input file name or an VipsthumbnailCommand object to use the
 	 * output of that command
 	 * @param string $output Output file name or extension of the temporary file
 	 * @param bool $tempOutput Output to a temporary file
 	 */
 	public function setIO( $input, $output, $tempOutput = false ) {
-		if ( $input instanceof VipsCommand ) {
+		if ( $input instanceof VipsthumbnailCommand ) {
 			$this->input = $input->getOutput();
 			$this->removeInput = true;
 		} else {
@@ -92,6 +91,7 @@ class VipsCommand {
 
 	/**
 	 * Returns the output filename
+	 *
 	 * @return string
 	 */
 	public function getOutput() {
@@ -100,10 +100,27 @@ class VipsCommand {
 
 	/**
 	 * Return the output of the command
+	 *
 	 * @return string
 	 */
 	public function getErrorString() {
 		return $this->err;
+	}
+
+	/**
+	 * Add --arguments=value to the command
+	 *
+	 * @return string
+	 */
+	private function addArgsToCommand( $cmd, $args ) {
+		foreach ( $args as $key => $value ) {
+			$cmdArg = "--$key";
+			if ( $value ) {
+				$cmdArg .= "=$value";
+			}
+			array_push( $cmd, $cmdArg );
+		}
+		return $cmd;
 	}
 
 	/**
@@ -114,13 +131,13 @@ class VipsCommand {
 	public function execute() {
 		# Build the command line
 		$cmd = [
-			$this->vips,
-			array_shift( $this->args ),
+			$this->vipsthumbnail,
 			$this->input,
-			$this->output
 		];
 
-		$cmd = array_merge( $cmd, $this->args );
+		$cmd = $this->addArgsToCommand( $cmd, $this->args );
+		$cmd[] = '-o';
+		$cmd[] = $this->output;
 
 		# Execute
 		$result = Shell::command( $cmd )
@@ -130,6 +147,7 @@ class VipsCommand {
 			->execute();
 
 		$this->err = $result->getStdout();
+		$this->err = print_r( $cmd );
 		$retval = $result->getExitCode();
 
 		# Cleanup temp file
@@ -153,32 +171,4 @@ class VipsCommand {
 	public static function makeTemp( $extension ) {
 		return TempFSFile::factory( 'vips_', $extension );
 	}
-
-	/**
-	 * Output syntax for specifying a non-default page.
-	 *
-	 * This is a little hacky, but im_shrink and shrink have
-	 * a different format for specifying page number.
-	 *
-	 * @param int $page Page number (1-indexed)
-	 * @return string String to append to filename
-	 */
-	public function makePageArgument( $page ) {
-		$vipsCommand = $this->args[0];
-		$page = intval( $page ) - 1;
-
-		if ( $page === 0 ) {
-			// Default is first page anyways.
-			return '';
-		}
-		if ( substr( $vipsCommand, 0, 2 ) === 'im' ) {
-			// The im_* commands seem to all take the colon format
-			return ':' . $page;
-		}
-		if ( $vipsCommand === 'shrink' ) {
-			return "[page=$page]";
-		}
-		throw new Exception( "Not sure how to specify page for command $vipsCommand" );
-	}
-
 }

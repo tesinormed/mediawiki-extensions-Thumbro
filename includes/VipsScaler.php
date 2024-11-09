@@ -75,19 +75,6 @@ class VipsScaler {
 	public static function doTransform( $handler, $file, $params, $options, &$mto ) {
 		wfDebug( __METHOD__ . ': scaling ' . $file->getName() . " using vips\n" );
 
-		$vipsCommands = self::makeCommands( $handler, $file, $params, $options );
-		if ( count( $vipsCommands ) == 0 ) {
-			return true;
-		}
-
-		$actualSrcPath = $params['srcPath'];
-		// Only do this for tiff files, as valid format options in vips is per-format.
-		if ( $file->isMultipage() && isset( $params['page'] )
-			&& preg_match( '/\.tiff?$/', $actualSrcPath )
-		) {
-			$actualSrcPath .= $vipsCommands[0]->makePageArgument( $params['page'] );
-		}
-
 		list( $major, $minor ) = File::splitMime( $file->getMimeType() );
 		if ( $major !== 'image' ) {
 			return;
@@ -115,39 +102,18 @@ class VipsScaler {
 			$outputOptionsString .= "]";
 		}
 
-		// Use vipsthumbnail directly instead of manually building the transformations
-		$cmd = [
-			// TODO: Make this configurable?
-			'/usr/bin/vipsthumbnail',
-			$actualSrcPath,
-			'--size',
-			$params['physicalWidth'] . 'x' . $params['physicalHeight'],
-			'-o',
-			$params['dstPath'] . $outputOptionsString,
-		];
-
-		$result = Shell::command( $cmd )
-			->environment( [ 'IM_CONCURRENCY' => '1' ] )
-			->limits( [ 'filesize' => 409600 ] )
-			->includeStderr()
-			->execute();
+		$vipsthumbnailCommands = self::makeCommands( $file, $params, $options );
+		if ( count( $vipsthumbnailCommands ) == 0 ) {
+			return true;
+		}	
 
 		// Execute the commands
-		/** @var VipsCommand $command */
-		/*
-		foreach ( $vipsCommands as $i => $command ) {
+		/** @var VipsthumbnailCommand $command */
+		foreach ( $vipsthumbnailCommands as $i => $command ) {
 			// Set input/output files
-			if ( $i == 0 && count( $vipsCommands ) == 1 ) {
+			if ( $i == 0 && count( $vipsthumbnailCommands ) == 1 ) {
 				// Single command, so output directly to dstPath
-				$command->setIO( $actualSrcPath, $params['dstPath'] );
-			} elseif ( $i == 0 ) {
-				// First command, input from srcPath, output to temp
-				$command->setIO( $actualSrcPath, 'v', VipsCommand::TEMP_OUTPUT );
-			} elseif ( $i + 1 == count( $vipsCommands ) ) {
-				// Last command, output to dstPath
-				$command->setIO( $vipsCommands[$i - 1], $params['dstPath'] );
-			} else {
-				$command->setIO( $vipsCommands[$i - 1], 'v', VipsCommand::TEMP_OUTPUT );
+				$command->setIO( $params['srcPath'], $params['dstPath'] . $outputOptionsString );
 			}
 
 			$retval = $command->execute();
@@ -159,6 +125,7 @@ class VipsScaler {
 			}
 		}
 
+		/*
 		// Set comment
 		if ( !empty( $options['setcomment'] ) && !empty( $params['comment'] ) ) {
 			self::setJpegComment( $params['dstPath'], $params['comment'] );
@@ -180,153 +147,15 @@ class VipsScaler {
 	 * @param array $options
 	 * @return array
 	 */
-	public static function makeCommands( $handler, $file, $params, $options ) {
+	public static function makeCommands( $file, $params, $options ) {
 		global $wgVipsCommand;
 		$commands = [];
 
-		// Get the proper im_XXX2vips handler
-		$vipsHandler = self::getVipsHandler( $file );
-		if ( !$vipsHandler ) {
-			return [];
-		}
-
-		// Check if we need to convert to a .v file first
-		if ( !empty( $options['preconvert'] ) ) {
-			$commands[] = new VipsCommand( $wgVipsCommand, [ $vipsHandler ] );
-		}
-
-		// Do the resizing
-		$rotation = 360 - $handler->getRotation( $file );
-
-		wfDebug( __METHOD__ . " rotating '{$file->getName()}' by {$rotation}°\n" );
-		if ( empty( $options['bilinear'] ) ) {
-			# Calculate shrink factors. Offsetting by a small amount is required
-			# because of rounding down of the target size by VIPS. See 25990#c7
-
-			# No need to invert source and physical dimensions. They already got
-			# switched if needed.
-
-			# Use sprintf() instead of plain string conversion so that we can
-			# control the precision
-			$rx = sprintf( "%.18e", $params['srcWidth'] / ( $params['physicalWidth'] + 0.125 ) );
-			$ry = sprintf( "%.18e", $params['srcHeight'] / ( $params['physicalHeight'] + 0.125 ) );
-
-			wfDebug( sprintf(
-				"%s to shrink '%s'. Source: %sx%s, Physical: %sx%s. Shrink factors (rx,ry) = %sx%s.\n",
-				__METHOD__, $file->getName(),
-				$params['srcWidth'], $params['srcHeight'],
-				$params['physicalWidth'], $params['physicalHeight'],
-				$rx, $ry
-			) );
-
-			$roundedRx = round( (float)$rx );
-			$roundedRy = round( (float)$ry );
-
-			if (
-				floor( $params['srcWidth'] / $roundedRx ) == $params['physicalWidth']
-				&& floor( $params['srcHeight'] / $roundedRy ) == $params['physicalHeight']
-			) {
-				// For tiff files, shrink only seems to work properly when given integer shrink factors.
-				// Otherwise, in vips 7.34 it segfaults. In 7.38 it works but gives weird artifcats.
-				// Docs say non-integer shrink factors give bad results (Although I can only notice a
-				// difference in tiffs), so might as well round them in cases where it doesn't matter
-				// for all formats.
-				$rx = $roundedRx;
-				$ry = $roundedRy;
-				$shrinkCmd = 'shrink';
-			} elseif ( $file->getMimeType() === 'image/tiff' ) {
-				$shrinkCmd = 'im_shrink';
-			} else {
-				// For everything else, shrink works best.
-				$shrinkCmd = 'shrink';
-			}
-
-			$commands[] = new VipsCommand( $wgVipsCommand, [ $shrinkCmd, $rx, $ry ] );
-		} else {
-			if ( $rotation % 180 == 90 ) {
-				$dstWidth = $params['physicalHeight'];
-				$dstHeight = $params['physicalWidth'];
-			} else {
-				$dstWidth = $params['physicalWidth'];
-				$dstHeight = $params['physicalHeight'];
-			}
-			wfDebug( sprintf(
-				"%s to bilinear resize %s. Source: %sx%s, Physical: %sx%s. Destination: %sx%s\n",
-				__METHOD__, $file->getName(),
-				$params['srcWidth'], $params['srcHeight'],
-				$params['physicalWidth'], $params['physicalHeight'],
-				$dstWidth, $dstHeight
-			) );
-
-			$commands[] = new VipsCommand( $wgVipsCommand,
-				[ 'im_resize_linear', $dstWidth, $dstHeight ] );
-		}
-
-		if ( !empty( $options['sharpen'] ) ) {
-			$options['convolution'] = self::makeSharpenMatrix( $options['sharpen'] );
-		}
-
-		if ( !empty( $options['convolution'] ) ) {
-			$commands[] = new VipsConvolution( $wgVipsCommand,
-				[ 'im_convf', $options['convolution'] ] );
-		}
-
-		# Rotation
-		if ( $rotation % 360 != 0 && $rotation % 90 == 0 ) {
-			$commands[] = new VipsCommand( $wgVipsCommand, [ "im_rot{$rotation}" ] );
-		}
-
-		// Interlace
-		if ( isset( $params['interlace'] ) && $params['interlace'] ) {
-			list( $major, $minor ) = File::splitMime( $file->getMimeType() );
-			if ( $major == 'image' && in_array( $minor, [ 'jpeg', 'png' ] ) ) {
-				$commands[] = new VipsCommand( $wgVipsCommand, [ "{$minor}save", "--interlace" ] );
-			} else {
-				// File type unsupported for interlacing, return empty array to cancel processing
-				return [];
-			}
-		}
+		$commands[] = new VipsthumbnailCommand( $wgVipsCommand, [
+			'size' => $params['physicalWidth'] . 'x' . $params['physicalHeight']
+		] );
 
 		return $commands;
-	}
-
-	/**
-	 * Create a sharpening matrix suitable for im_convf. Uses the ImageMagick
-	 * sharpening algorithm from SharpenImage() in magick/effect.c
-	 *
-	 * @param mixed $params
-	 * @return array
-	 */
-	public static function makeSharpenMatrix( $params ) {
-		$sigma = $params['sigma'];
-		$radius = empty( $params['radius'] ) ?
-			# After 3 sigma there should be no significant values anymore
-			intval( round( $sigma * 3 ) ) : $params['radius'];
-
-		$norm = 0;
-		$conv = [];
-
-		// Fill the matrix with a negative Gaussian distribution
-		$variance = $sigma * $sigma;
-		for ( $x = -$radius; $x <= $radius; $x++ ) {
-			$row = [];
-			for ( $y = -$radius; $y <= $radius; $y++ ) {
-				$z = -exp( -( $x * $x + $y * $y ) / ( 2 * $variance ) ) /
-					( 2 * pi() * $variance );
-				$row[] = $z;
-				$norm += $z;
-			}
-			$conv[] = $row;
-		}
-
-		// Calculate the scaling parameter to ensure that the mean of the
-		// matrix is zero
-		$scale = -$conv[$radius][$radius] - $norm;
-		// Set the center pixel to obtain a sharpening matrix
-		$conv[$radius][$radius] = -$norm * 2;
-		// Add the matrix descriptor
-		array_unshift( $conv, [ $radius * 2 + 1, $radius * 2 + 1, $scale, 0 ] );
-		return $conv;
 	}
 
 	/**
@@ -405,21 +234,6 @@ class VipsScaler {
 
 		Shell::command( $wgExiv2Command, 'mo', '-c', $comment, $fileName )
 			->execute();
-	}
-
-	/**
-	 * Return the appropriate im_XXX2vips handler for this file
-	 * @param File $file
-	 * @return mixed String or false
-	 */
-	public static function getVipsHandler( $file ) {
-		list( $major, $minor ) = File::splitMime( $file->getMimeType() );
-
-		if ( $major == 'image' && in_array( $minor, [ 'jpeg', 'png', 'tiff' ] ) ) {
-			return "im_{$minor}2vips";
-		} else {
-			return false;
-		}
 	}
 
 	/**

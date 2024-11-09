@@ -125,12 +125,14 @@ class SpecialVipsTest extends SpecialPage {
 			return;
 		}
 		$vipsUrlOptions = [ 'thumb' => $file->getName(), 'width' => $width ];
+		/*
 		if ( $request->getRawVal( 'sharpen' ) !== null ) {
 			$vipsUrlOptions['sharpen'] = $request->getFloat( 'sharpen' );
 		}
 		if ( $request->getBool( 'bilinear' ) ) {
 			$vipsUrlOptions['bilinear'] = 1;
 		}
+		*/
 
 		// Generate normal thumbnail
 		$params = [ 'width' => $width ];
@@ -243,6 +245,7 @@ class SpecialVipsTest extends SpecialPage {
 				'label-message' => 'vipsscaler-form-width',
 				'validation-callback' => [ __CLASS__, 'validateWidth' ],
 			],
+			/*
 			'SharpenRadius' => [
 				'name'          => 'sharpen',
 				'class'         => 'HTMLFloatField',
@@ -256,15 +259,18 @@ class SpecialVipsTest extends SpecialPage {
 				'class' 		=> 'HTMLCheckField',
 				'label-message'	=> 'vipsscaler-form-bilinear',
 			],
+			*/
 		];
 
 		/**
 		 * Match ImageMagick by default
 		 */
+		/*
 		global $wgSharpenParameter;
 		if ( preg_match( '/^[0-9.]+x([0-9.]+)$/', $wgSharpenParameter, $m ) ) {
 			$fields['SharpenRadius']['default'] = $m[1];
 		}
+		*/
 		return $fields;
 	}
 
@@ -318,12 +324,14 @@ class SpecialVipsTest extends SpecialPage {
 	 * @param array $allData
 	 * @return bool|string
 	 */
+	/*
 	public static function validateSharpen( $input, $allData ) {
 		if ( $input >= 5.0 || $input < 0.0 ) {
 			return wfMessage( 'vipsscaler-invalid-sharpen' )->text();
 		}
 		return true;
 	}
+	*/
 
 	/**
 	 * Process data submitted by the form.
@@ -355,12 +363,6 @@ class SpecialVipsTest extends SpecialPage {
 			return;
 		}
 
-		// Check if vips can handle this file
-		if ( VipsScaler::getVipsHandler( $file ) === false ) {
-			$this->streamError( 500, "VipsScaler: VIPS cannot handle this file type\n" );
-			return;
-		}
-
 		// Validate param string
 		$handler = $file->getHandler();
 		$params = [ 'width' => $request->getInt( 'width' ) ];
@@ -374,7 +376,7 @@ class SpecialVipsTest extends SpecialPage {
 			// No remote scaler, need to do it ourselves.
 			// Emulate the BitmapHandlerTransform hook
 
-			$tmpFile = VipsCommand::makeTemp( $file->getExtension() );
+			$tmpFile = VipsthumbnailCommand::makeTemp( $file->getExtension() );
 			$tmpFile->bind( $this );
 			$dstPath = $tmpFile->getPath();
 			$dstUrl = '';
@@ -402,6 +404,7 @@ class SpecialVipsTest extends SpecialPage {
 			];
 
 			$options = [];
+			/*
 			if ( $request->getBool( 'bilinear' ) ) {
 				$options['bilinear'] = true;
 				wfDebug( __METHOD__ . ": using bilinear scaling\n" );
@@ -412,6 +415,7 @@ class SpecialVipsTest extends SpecialPage {
 				$options['sharpen'] = [ 'sigma' => $sharpen ];
 				wfDebug( __METHOD__ . ": sharpening with radius {$sharpen}\n" );
 			}
+			*/
 
 			// Call the hook
 			/** @var MediaTransformOutput $mto */

@@ -73,7 +73,7 @@
 			"value": false
 		},
 		"VipsCommand": {
-			"value": "/usr/bin/vips"
+			"value": "/usr/bin/vipsthumbnail"
 		},
 		"VipsOptions": {
 			"value": []
