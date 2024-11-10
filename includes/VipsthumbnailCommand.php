@@ -23,6 +23,7 @@
 
 namespace MediaWiki\Extension\VipsScaler;
 
+use MediaWiki\MediaWikiServices;
 use MediaWiki\Shell\Shell;
 use TempFSFile;
 
@@ -177,6 +178,7 @@ class VipsthumbnailCommand {
 	 * @return TempFSFile
 	 */
 	public static function makeTemp( $extension ) {
-		return TempFSFile::factory( 'vips_', $extension );
+		$tmpFactory = MediaWikiServices::getInstance()->getTempFSFileFactory();
+		return $tmpFactory->newTempFSFile( 'vips_', $extension );
 	}
 }
