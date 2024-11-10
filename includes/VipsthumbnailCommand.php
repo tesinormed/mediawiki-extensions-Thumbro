@@ -108,18 +108,38 @@ class VipsthumbnailCommand {
 	}
 
 	/**
-	 * Add --arguments=value to the command
+	 * Flatten arguments into "--key=name" array
 	 *
+	 * @param array $args
 	 * @return string
 	 */
-	private function addArgsToCommand( $cmd, $args ) {
+	private function makeArguments( $args ) {
+		$cmdArgs = [];
 		foreach ( $args as $key => $value ) {
 			$cmdArg = "--$key";
 			if ( $value ) {
 				$cmdArg .= "=$value";
 			}
-			array_push( $cmd, $cmdArg );
+			array_push( $cmdArgs, $cmdArg );
 		}
+		return $cmdArgs;
+	}
+
+	/**
+	 * Constructs the command line array for executing the vipsthumbnail command.
+	 *
+	 * @return array The constructed command line array.
+	 */
+	private function buildCommand() {
+		$cmd = [
+			$this->vipsthumbnail,
+			$this->input,
+		];
+		# Input arguments
+		$cmd = array_merge( $cmd, $this->makeArguments( $this->args ) );
+		# Output arguments
+		$cmd[] = '-o';
+		$cmd[] = $this->output;
 		return $cmd;
 	}
 
@@ -129,25 +149,13 @@ class VipsthumbnailCommand {
 	 * @return int Return value
 	 */
 	public function execute() {
-		# Build the command line
-		$cmd = [
-			$this->vipsthumbnail,
-			$this->input,
-		];
-
-		$cmd = $this->addArgsToCommand( $cmd, $this->args );
-		$cmd[] = '-o';
-		$cmd[] = $this->output;
-
-		# Execute
-		$result = Shell::command( $cmd )
+		$result = Shell::command( $this->buildCommand() )
 			->environment( [ 'IM_CONCURRENCY' => '1' ] )
 			->limits( [ 'filesize' => 409600 ] )
 			->includeStderr()
 			->execute();
 
 		$this->err = $result->getStdout();
-		$this->err = print_r( $cmd );
 		$retval = $result->getExitCode();
 
 		# Cleanup temp file

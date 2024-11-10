@@ -75,33 +75,6 @@ class VipsScaler {
 	public static function doTransform( $handler, $file, $params, $options, &$mto ) {
 		wfDebug( __METHOD__ . ': scaling ' . $file->getName() . " using vips\n" );
 
-		list( $major, $minor ) = File::splitMime( $file->getMimeType() );
-		if ( $major !== 'image' ) {
-			return;
-		}
-
-		$outputOptions = [];
-		switch( $minor ) {
-			case 'png':
-				// pngsave
-				$outputOptions += [
-					'strip' => 'true',
-					'filter' => 'VIPS_FOREIGN_PNG_FILTER_ALL',
-				];
-				break;
-		}
-
-		$outputOptionsString = '';
-		if ( count( $outputOptions ) > 0  ) {
-			// Format output options into [key=value,key=value] format
-			$outputOptionsString = '[';
-			foreach ( $outputOptions as $key => $value ) {
-				$outputOptionsString .= "$key=$value,";
-			}
-			$outputOptionsString = rtrim( $outputOptionsString, "," );
-			$outputOptionsString .= "]";
-		}
-
 		$vipsthumbnailCommands = self::makeCommands( $file, $params, $options );
 		if ( count( $vipsthumbnailCommands ) == 0 ) {
 			return true;
@@ -110,12 +83,6 @@ class VipsScaler {
 		// Execute the commands
 		/** @var VipsthumbnailCommand $command */
 		foreach ( $vipsthumbnailCommands as $i => $command ) {
-			// Set input/output files
-			if ( $i == 0 && count( $vipsthumbnailCommands ) == 1 ) {
-				// Single command, so output directly to dstPath
-				$command->setIO( $params['srcPath'], $params['dstPath'] . $outputOptionsString );
-			}
-
 			$retval = $command->execute();
 			if ( $retval != 0 ) {
 				wfDebug( __METHOD__ . ": vips command failed!\n" );
@@ -139,6 +106,29 @@ class VipsScaler {
 	}
 
 	/**
+	 * Converts the given array of arguments into a string in the format
+	 * [key=value,key=value,...]. If the array is empty, returns an empty string.
+	 * 
+	 * @see https://www.libvips.org/API/current/Using-vipsthumbnail.html#output-format-and-options
+	 *
+	 * @param array $args Associative array of arguments to format.
+	 * @return string Formatted string of output arguments.
+	 */
+	private function makeOutputOptions( $args ) {
+		$outputArg = '';
+		if ( count( $args ) > 0  ) {
+			// Format output options into [key=value,key=value] format
+			$outputArg = '[';
+			foreach ( $args as $key => $value ) {
+				$outputArg .= "$key=$value,";
+			}
+			$outputArg = rtrim( $outputArg, "," );
+			$outputArg .= "]";
+		}
+		return $outputArg;
+	}
+
+	/**
 	 * @param BitmapHandler $handler
 	 * @param File $file
 	 * @param array $params
@@ -146,12 +136,33 @@ class VipsScaler {
 	 * @return array
 	 */
 	public static function makeCommands( $file, $params, $options ) {
-		global $wgVipsCommand;
+		global $wgVipsthumbnailCommand;
+
+		list( $major, $minor ) = File::splitMime( $file->getMimeType() );
+		if ( $major !== 'image' ) {
+			return;
+		}
+
+		$outputOptions = [];
+		switch( $minor ) {
+			case 'png':
+				// pngsave
+				$outputOptions += [
+					'strip' => 'true',
+					'filter' => 'VIPS_FOREIGN_PNG_FILTER_ALL',
+				];
+				break;
+		}
+
 		$commands = [];
 
-		$commands[] = new VipsthumbnailCommand( $wgVipsCommand, [
+		// Create thumbnail into the same file type
+		$baseCommand = new VipsthumbnailCommand( $wgVipsthumbnailCommand, [
 			'size' => $params['physicalWidth'] . 'x' . $params['physicalHeight']
 		] );
+		$baseCommand->setIO( $params['srcPath'], $params['dstPath'] . self::makeOutputOptions( $outputOptions ) );
+
+		$commands[] = $baseCommand;
 
 		return $commands;
 	}

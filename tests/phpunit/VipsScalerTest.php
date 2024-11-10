@@ -30,7 +30,7 @@ class VipsScalerTest extends MediaWikiMediaTestCase {
 	}
 
 	public function VipsthumbnailCommandProvider() {
-		global $wgVipsCommand;
+		global $wgVipsthumbnailCommand;
 		$paramBase = [
 			'comment' => '',
 			'srcWidth' => 2048,
@@ -48,14 +48,14 @@ class VipsScalerTest extends MediaWikiMediaTestCase {
 				$paramBase,
 				'image/tiff',
 				[
-					new VipsthumbnailCommand( $wgVipsCommand, [ 'size' => $paramBase['physicalWidth'] . 'x' . $paramBase['physicalHeight'] ] )
+					new VipsthumbnailCommand( $wgVipsthumbnailCommand, [ 'size' => $paramBase['physicalWidth'] . 'x' . $paramBase['physicalHeight'] ] )
 				]
 			],
 			[
 				$paramBase,
 				'image/png',
 				[
-					new VipsthumbnailCommand( $wgVipsCommand, [ 'size' => $paramBase['physicalWidth'] . 'x' . $paramBase['physicalHeight'] ] )
+					new VipsthumbnailCommand( $wgVipsthumbnailCommand, [ 'size' => $paramBase['physicalWidth'] . 'x' . $paramBase['physicalHeight'] ] )
 				]
 			],
 		];

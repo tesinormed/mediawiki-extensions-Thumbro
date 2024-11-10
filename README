@@ -21,7 +21,7 @@ http://www.vips.ecs.soton.ac.uk/index.php?title=Build_on_Ubuntu
 
 == Configuration ==
 
-$wgVipsCommand : path to the vips command (default: vips).
+$wgVipsthumbnailCommand : path to the vips command (default: vipsthumbnail).
 
 By default everything is scaled using vips. To disable scaling, set
 $wgVipsOptions = array();

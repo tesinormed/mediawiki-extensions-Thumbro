@@ -72,7 +72,7 @@
 		"VipsExposeTestPage": {
 			"value": false
 		},
-		"VipsCommand": {
+		"VipsthumbnailCommand": {
 			"value": "/usr/bin/vipsthumbnail"
 		},
 		"VipsOptions": {
