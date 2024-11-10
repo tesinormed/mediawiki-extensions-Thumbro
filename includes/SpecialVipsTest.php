@@ -40,7 +40,7 @@ use PermissionsError;
 use SpecialPage;
 use Status;
 use StreamFile;
-use Title;
+use MediaWiki\Title\Title;
 use User;
 use Wikimedia\IPUtils;
 
