@@ -150,7 +150,11 @@ class VipsthumbnailCommand {
 	 * @return int Return value
 	 */
 	public function execute() {
-		$result = Shell::command( $this->buildCommand() )
+		$cmd = $this->buildCommand();
+
+		wfDebug( __METHOD__ . ': running Vips: "' . implode('" "', $cmd ) . '"\n' );
+
+		$result = Shell::command( $cmd )
 			->environment( [ 'IM_CONCURRENCY' => '1' ] )
 			->limits( [ 'filesize' => 409600 ] )
 			->includeStderr()

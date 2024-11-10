@@ -91,7 +91,7 @@ class VipsScaler implements
 		foreach ( $vipsthumbnailCommands as $i => $command ) {
 			$retval = $command->execute();
 			if ( $retval != 0 ) {
-				wfDebug( __METHOD__ . ": vips command failed!\n" );
+				wfDebug( __METHOD__ . ": vipsthumbnail command failed!\n" );
 				$error = $command->getErrorString() . "\nError code: $retval";
 				$mto = $handler->getMediaTransformError( $params, $error );
 				return false;
@@ -120,7 +120,7 @@ class VipsScaler implements
 	 * @param array $args Associative array of arguments to format.
 	 * @return string Formatted string of output arguments.
 	 */
-	private function makeOutputOptions( $args ) {
+	private static function makeOutputOptions( $args ) {
 		$outputArg = '';
 		if ( count( $args ) > 0  ) {
 			// Format output options into [key=value,key=value] format
@@ -184,6 +184,8 @@ class VipsScaler implements
 	protected static function getHandlerOptions( $handler, $file, $params ) {
 		global $wgVipsOptions;
 
+		wfDebug( __METHOD__ . ": Checking Vips options\n" );
+
 		if ( !isset( $params['page'] ) ) {
 			$page = 1;
 		} else {
@@ -199,8 +201,10 @@ class VipsScaler implements
 				return $option;
 			}
 
-			if ( isset( $condition['mimeType'] ) &&
-					$file->getMimeType() != $condition['mimeType'] ) {
+			if ( 
+				isset( $condition['mimeType'] ) &&
+				$file->getMimeType() != $condition['mimeType']
+			) {
 				continue;
 			}
 
