@@ -24,6 +24,8 @@ namespace MediaWiki\Extension\VipsScaler;
 
 use Html;
 use HTMLForm;
+use HTMLIntField;
+use HTMLTextField;
 use MediaTransformError;
 use MediaTransformOutput;
 use MediaWiki\MediaWikiServices;
@@ -230,7 +232,7 @@ class SpecialVipsTest extends SpecialPage {
 		$fields = [
 			'File' => [
 				'name'          => 'file',
-				'class'         => 'HTMLTextField',
+				'class'         => HTMLTextField::class,
 				'required'      => true,
 				'size' 			=> '80',
 				'label-message' => 'vipsscaler-form-file',
@@ -238,7 +240,7 @@ class SpecialVipsTest extends SpecialPage {
 			],
 			'Width' => [
 				'name'          => 'width',
-				'class'         => 'HTMLIntField',
+				'class'         => HTMLIntField::class,
 				'default'       => '640',
 				'size'          => '5',
 				'required'      => true,
@@ -248,7 +250,7 @@ class SpecialVipsTest extends SpecialPage {
 			/*
 			'SharpenRadius' => [
 				'name'          => 'sharpen',
-				'class'         => 'HTMLFloatField',
+				'class'         => HTMLFloatField:class,
 				'default'		=> '0.0',
 				'size'			=> '5',
 				'label-message' => 'vipsscaler-form-sharpen-radius',
@@ -256,7 +258,7 @@ class SpecialVipsTest extends SpecialPage {
 			],
 			'Bilinear' => [
 				'name' 			=> 'bilinear',
-				'class' 		=> 'HTMLCheckField',
+				'class' 		=> HTMLCheckField::class,
 				'label-message'	=> 'vipsscaler-form-bilinear',
 			],
 			*/
