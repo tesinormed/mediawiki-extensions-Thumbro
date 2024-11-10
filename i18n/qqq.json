@@ -12,6 +12,7 @@
 	"vipsscaler-invalid-width": "Error message when SpecialVipsTest did not get a valid width parameter\n\nSee also {{msg-mw|Vipsscaler-invalid-sharpen}}",
 	"vipsscaler-invalid-sharpen": "Error message when SpecialVipsTest did not get a valid sharpen parameter\n\nSee also {{msg-mw|Vipsscaler-invalid-width}}",
 	"vipsscaler-thumb-error": "Error message when VIPS did not manage to generate a thumbnail",
+	"vipsscaler-thumb-notscaled": "Error message when VIPS did not scale the thumbnail.",
 	"vipsscaler-form-legend": "Special:VipsTest form: legend at top of the form",
 	"vipsscaler-form-width": "Special:VipsTest form: label for the width input box",
 	"vipsscaler-form-file": "Special:VipsTest form: label for the file input box",

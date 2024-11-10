@@ -110,7 +110,8 @@ class SpecialVipsTest extends SpecialPage {
 			$this->getOutput()->addWikiMsg( 'vipsscaler-invalid-file' );
 			return;
 		}
-		$file = MediaWikiServices::getInstance()->getRepoGroup()->findFile( $title );
+		$services = MediaWikiServices::getInstance();
+		$file = $services->getRepoGroup()->findFile( $title );
 		if ( !$file || !$file->exists() ) {
 			$this->getOutput()->addWikiMsg( 'vipsscaler-invalid-file' );
 			return;
@@ -142,8 +143,8 @@ class SpecialVipsTest extends SpecialPage {
 
 		// Check if we actually scaled the file
 		$normalThumbUrl = $thumb->getUrl();
-		if ( wfExpandUrl( $normalThumbUrl ) == $file->getFullUrl() ) {
-			// TODO: message
+		if ( $services->getUrlUtils()->expand( $normalThumbUrl ) == $file->getFullUrl() ) {
+			$this->getOutput()->addWikiMsg( 'vipsscaler-thumb-notscaled' );
 		}
 
 		// Make url to the vips thumbnail

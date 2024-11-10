@@ -8,6 +8,7 @@
 	"vipsscaler-invalid-width": "Thumbnail width should be larger than zero and not larger than file width.",
 	"vipsscaler-invalid-sharpen": "Sharpening amount should be a number larger than zero and smaller than five.",
 	"vipsscaler-thumb-error": "VIPS could not generate a thumbnail with given parameters.",
+	"vipsscaler-thumb-notscaled": "VIPS did not scale the thumbnail.",
 	"vipsscaler-form-legend": "VIPS scaling",
 	"vipsscaler-form-width": "Thumbnail width:",
 	"vipsscaler-form-file": "File on this wiki:",
