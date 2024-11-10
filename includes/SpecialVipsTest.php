@@ -42,7 +42,6 @@ use Status;
 use StreamFile;
 use Title;
 use User;
-use Wikimedia\AtEase\AtEase;
 use Wikimedia\IPUtils;
 
 /**
@@ -432,10 +431,8 @@ class SpecialVipsTest extends SpecialPage {
 			}
 
 			// Cleanup the temporary file
-			AtEase::suppressWarnings();
-			unlink( $dstPath );
-			AtEase::restoreWarnings();
-
+			// phpcs:ignore Generic.PHP.NoSilencedErrors.Discouraged
+			@unlink( $dstPath );
 		} else {
 			// Request the thumbnail at a remote scaler
 			$url = wfExpandUrl( $request->getRequestURL(), PROTO_INTERNAL );
