@@ -33,7 +33,8 @@
 	},
 	"Hooks": {
 		"BitmapHandlerTransform": "main",
-		"BitmapHandlerCheckImageArea": "main"
+		"BitmapHandlerCheckImageArea": "main",
+		"SoftwareInfo": "main"
 	},
 	"HookHandlers": {
 		"main": {
