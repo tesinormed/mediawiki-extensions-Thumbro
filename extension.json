@@ -37,7 +37,7 @@
 	},
 	"HookHandlers": {
 		"main": {
-			"class": "MediaWiki\\Extension\\VipsScaler\\VipsScaler"
+			"class": "MediaWiki\\Extension\\VipsScaler\\Hooks"
 		}
 	},
 	"ResourceModules": {

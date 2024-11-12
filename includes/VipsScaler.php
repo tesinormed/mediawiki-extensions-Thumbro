@@ -28,11 +28,8 @@ use File;
 use ImageHandler;
 use MediaHandler;
 use MediaTransformOutput;
-use MediaWiki\Hook\BitmapHandlerCheckImageAreaHook;
-use MediaWiki\Hook\BitmapHandlerTransformHook;
 use MediaWiki\Shell\Shell;
 use ThumbnailImage;
-use TransformationalImageHandler;
 
 /**
  * Wrapper class for VIPS, a free image processing system good at handling
@@ -42,30 +39,7 @@ use TransformationalImageHandler;
  *
  * @author Bryan Tong Minh
  */
-class VipsScaler implements
-	BitmapHandlerTransformHook,
-	BitmapHandlerCheckImageAreaHook
-{
-	/**
-	 * Hook to BitmapHandlerTransform. Transforms the file using VIPS if it
-	 * matches a condition in $wgVipsConditions
-	 *
-	 * @param TransformationalImageHandler $handler
-	 * @param File $file
-	 * @param array &$params
-	 * @param MediaTransformOutput|null &$mto
-	 * @return bool
-	 */
-	public function onBitmapHandlerTransform( $handler, $file, &$params, &$mto ) {
-		// Check $wgVipsConditions
-		$options = self::getHandlerOptions( $handler, $file, $params );
-		if ( !$options ) {
-			wfDebug( "...\n" );
-			return true;
-		}
-		return self::doTransform( $handler, $file, $params, $options, $mto );
-	}
-
+class VipsScaler {
 	/**
 	 * Performs a transform with VIPS
 	 *
@@ -181,7 +155,7 @@ class VipsScaler implements
 	 * @param array $params
 	 * @return bool|array
 	 */
-	protected static function getHandlerOptions( $handler, $file, $params ) {
+	public static function getHandlerOptions( $handler, $file, $params ) {
 		global $wgVipsOptions;
 
 		wfDebug( __METHOD__ . ": Checking Vips options\n" );
@@ -253,25 +227,5 @@ class VipsScaler implements
 
 		Shell::command( $wgExiv2Command, 'mo', '-c', $comment, $fileName )
 			->execute();
-	}
-
-	/**
-	 * Hook to BitmapHandlerCheckImageArea. Will set $result to true if the
-	 * file will by handled by VipsScaler.
-	 *
-	 * @param File $file
-	 * @param array &$params
-	 * @param mixed &$result
-	 * @return bool
-	 */
-	public function onBitmapHandlerCheckImageArea( $file, &$params, &$result ) {
-		global $wgMaxImageArea;
-		/** @phan-suppress-next-line PhanTypeMismatchArgumentSuperType ImageHandler vs. MediaHandler */
-		if ( self::getHandlerOptions( $file->getHandler(), $file, $params ) !== false ) {
-			wfDebug( __METHOD__ . ": Overriding $wgMaxImageArea\n" );
-			$result = true;
-			return false;
-		}
-		return true;
 	}
 }
