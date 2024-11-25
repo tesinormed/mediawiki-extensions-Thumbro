@@ -21,6 +21,8 @@
  * @file
  */
 
+declare( strict_types=1 );
+
 namespace MediaWiki\Extension\VipsScaler;
 
 use MediaWiki\MediaWikiServices;
@@ -60,7 +62,7 @@ class VipsthumbnailCommand {
 	 * @param string $vipsthumbnail Path to binary
 	 * @param array $args Array or arguments
 	 */
-	public function __construct( $vipsthumbnail, $args ) {
+	public function __construct( string $vipsthumbnail, array $args ) {
 		$this->vipsthumbnail = $vipsthumbnail;
 		$this->args = $args;
 	}
@@ -73,7 +75,7 @@ class VipsthumbnailCommand {
 	 * @param string $output Output file name or extension of the temporary file
 	 * @param bool $tempOutput Output to a temporary file
 	 */
-	public function setIO( $input, $output, $tempOutput = false ) {
+	public function setIO( $input, $output, $tempOutput = false ): void {
 		if ( $input instanceof VipsthumbnailCommand ) {
 			$this->input = $input->getOutput();
 			$this->removeInput = true;
@@ -92,29 +94,22 @@ class VipsthumbnailCommand {
 
 	/**
 	 * Returns the output filename
-	 *
-	 * @return string
 	 */
-	public function getOutput() {
+	public function getOutput(): string {
 		return $this->output;
 	}
 
 	/**
 	 * Return the output of the command
-	 *
-	 * @return string
 	 */
-	public function getErrorString() {
+	public function getErrorString(): string {
 		return $this->err;
 	}
 
 	/**
 	 * Flatten arguments into "--key=name" array
-	 *
-	 * @param array $args
-	 * @return string
 	 */
-	private function makeArguments( $args ) {
+	private function makeArguments( array $args ): array {
 		$cmdArgs = [];
 		foreach ( $args as $key => $value ) {
 			$cmdArg = "--$key";
@@ -128,10 +123,8 @@ class VipsthumbnailCommand {
 
 	/**
 	 * Constructs the command line array for executing the vipsthumbnail command.
-	 *
-	 * @return array The constructed command line array.
 	 */
-	private function buildCommand() {
+	private function buildCommand(): array {
 		$cmd = [
 			$this->vipsthumbnail,
 			$this->input,
@@ -146,10 +139,8 @@ class VipsthumbnailCommand {
 
 	/**
 	 * Call the vips binary with varargs and returns the return value.
-	 *
-	 * @return int Return value
 	 */
-	public function execute() {
+	public function execute(): int {
 		$cmd = $this->buildCommand();
 
 		wfDebug( __METHOD__ . ': running Vips: "' . implode('" "', $cmd ) . '"\n' );
@@ -177,11 +168,8 @@ class VipsthumbnailCommand {
 	/**
 	 * Generate a random, non-existent temporary file with a specified
 	 * extension.
-	 *
-	 * @param string $extension Extension
-	 * @return TempFSFile
 	 */
-	public static function makeTemp( $extension ) {
+	public static function makeTemp( string $extension ): TempFSFile {
 		$tmpFactory = MediaWikiServices::getInstance()->getTempFSFileFactory();
 		return $tmpFactory->newTempFSFile( 'vips_', $extension );
 	}

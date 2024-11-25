@@ -21,15 +21,16 @@
  * @file
  */
 
+declare( strict_types=1 );
+
 namespace MediaWiki\Extension\VipsScaler;
 
-use BitmapHandler;
 use File;
-use ImageHandler;
-use MediaHandler;
 use MediaTransformOutput;
+use MediaWiki\Extension\VipsScaler\VipsthumbnailCommand;
 use MediaWiki\Shell\Shell;
 use ThumbnailImage;
+use TransformationalImageHandler;
 
 /**
  * Wrapper class for VIPS, a free image processing system good at handling
@@ -44,15 +45,14 @@ class VipsScaler {
 	 * Performs a transform with VIPS
 	 *
 	 * @see VipsScaler::onTransform
-	 *
-	 * @param BitmapHandler|MediaHandler $handler
-	 * @param File $file
-	 * @param array $params
-	 * @param array $options
-	 * @param MediaTransformOutput &$mto
-	 * @return bool
 	 */
-	public static function doTransform( $handler, $file, $params, $options, &$mto ) {
+	public static function doTransform(
+		TransformationalImageHandler $handler,
+		File $file,
+		array $params,
+		array $options,
+		?MediaTransformOutput &$mto
+	): bool {
 		wfDebug( __METHOD__ . ': scaling ' . $file->getName() . " using vips\n" );
 
 		$vipsthumbnailCommands = self::makeCommands( $file, $params, $options );
@@ -90,11 +90,8 @@ class VipsScaler {
 	 * [key=value,key=value,...]. If the array is empty, returns an empty string.
 	 * 
 	 * @see https://www.libvips.org/API/current/Using-vipsthumbnail.html#output-format-and-options
-	 *
-	 * @param array $args Associative array of arguments to format.
-	 * @return string Formatted string of output arguments.
 	 */
-	private static function makeOutputOptions( $args ) {
+	private static function makeOutputOptions( array $args ): string {
 		$outputArg = '';
 		if ( count( $args ) > 0  ) {
 			// Format output options into [key=value,key=value] format
@@ -108,19 +105,16 @@ class VipsScaler {
 		return $outputArg;
 	}
 
-	/**
-	 * @param BitmapHandler $handler
-	 * @param File $file
-	 * @param array $params
-	 * @param array $options
-	 * @return array
-	 */
-	public static function makeCommands( $file, $params, $options ) {
+	public static function makeCommands(
+		File $file,
+		array $params,
+		array $options
+	): array {
 		global $wgVipsthumbnailCommand;
 
 		list( $major, $minor ) = File::splitMime( $file->getMimeType() );
 		if ( $major !== 'image' ) {
-			return;
+			return [];
 		}
 
 		$outputOptions = [];
@@ -149,13 +143,12 @@ class VipsScaler {
 
 	/**
 	 * Check the file and params against $wgVipsOptions
-	 *
-	 * @param ImageHandler $handler
-	 * @param File $file
-	 * @param array $params
-	 * @return bool|array
 	 */
-	public static function getHandlerOptions( $handler, $file, $params ) {
+	public static function getHandlerOptions(
+		TransformationalImageHandler $handler,
+		File $file,
+		array $params
+	): ?array {
 		global $wgVipsOptions;
 
 		wfDebug( __METHOD__ . ": Checking Vips options\n" );
@@ -210,7 +203,7 @@ class VipsScaler {
 			return $option;
 		}
 		# All conditions failed
-		return false;
+		return null;
 	}
 
 	/**
@@ -218,11 +211,8 @@ class VipsScaler {
 	 * Requires $wgExiv2Command to be setup properly.
 	 *
 	 * @todo FIXME need to handle errors such as $wgExiv2Command not available
-	 *
-	 * @param string $fileName File where the comment needs to be set
-	 * @param string $comment The comment
 	 */
-	public static function setEXIFComment( $fileName, $comment ) {
+	public static function setEXIFComment( string $fileName, string $comment ): void {
 		global $wgExiv2Command;
 
 		Shell::command( $wgExiv2Command, 'mo', '-c', $comment, $fileName )

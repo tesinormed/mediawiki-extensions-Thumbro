@@ -56,14 +56,21 @@ class SpecialVipsTest extends SpecialPage {
 	/**
 	 * @inheritDoc
 	 */
-	public function userCanExecute( User $user ) {
+	protected function getGroupName(): string {
+		return 'media';
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public function userCanExecute( User $user ): bool {
 		return $this->getConfig()->get( 'VipsExposeTestPage' ) && parent::userCanExecute( $user );
 	}
 
 	/**
 	 * @inheritDoc
 	 */
-	public function displayRestrictionError() {
+	public function displayRestrictionError(): void {
 		if ( !$this->getConfig()->get( 'VipsExposeTestPage' ) ) {
 			throw new PermissionsError(
 				null,
@@ -75,10 +82,9 @@ class SpecialVipsTest extends SpecialPage {
 	}
 
 	/**
-	 * Entry point
-	 * @param string|null $par TODO describe what is expected there
+	 * @inheritDoc
 	 */
-	public function execute( $par ) {
+	public function execute( $subPage ): void {
 		$request = $this->getRequest();
 		$this->setHeaders();
 
@@ -95,7 +101,7 @@ class SpecialVipsTest extends SpecialPage {
 
 	/**
 	 */
-	protected function showThumbnails() {
+	protected function showThumbnails(): void {
 		$request = $this->getRequest();
 		$this->getOutput()->enableOOUI();
 		// Check if there is any input
@@ -203,7 +209,7 @@ class SpecialVipsTest extends SpecialPage {
 	/**
 	 * TODO
 	 */
-	protected function showForm() {
+	protected function showForm(): void {
 		$form = HTMLForm::factory( 'ooui', $this->getFormFields(), $this->getContext() );
 		$form->setWrapperLegend( $this->msg( 'vipsscaler-form-legend' )->text() );
 		$form->setSubmitText( $this->msg( 'vipsscaler-form-submit' )->text() );
@@ -222,9 +228,8 @@ class SpecialVipsTest extends SpecialPage {
 
 	/**
 	 * [[Special:VipsTest]] form structure for HTMLForm
-	 * @return array A form structure using the HTMLForm system
 	 */
-	protected function getFormFields() {
+	protected function getFormFields(): array {
 		$fields = [
 			'File' => [
 				'name'          => 'file',
@@ -272,11 +277,9 @@ class SpecialVipsTest extends SpecialPage {
 	}
 
 	/**
-	 * @param string $input
-	 * @param array $alldata
 	 * @return bool|string
 	 */
-	public static function validateFileInput( $input, $alldata ) {
+	public static function validateFileInput( string $input, array $alldata ) {
 		if ( !trim( $input ) ) {
 			// Don't show an error if the file is not yet specified,
 			// because it is annoying
@@ -332,10 +335,8 @@ class SpecialVipsTest extends SpecialPage {
 
 	/**
 	 * Process data submitted by the form.
-	 * @param array $data
-	 * @return Status
 	 */
-	public static function processForm( array $data ) {
+	public static function processForm( array $data ): Status {
 		return Status::newGood();
 	}
 
@@ -479,18 +480,11 @@ class SpecialVipsTest extends SpecialPage {
 
 	/**
 	 * Generates a blank page with given HTTP error code
-	 *
-	 * @param int $code HTTP error either 404 or 500
-	 * @param string $error
 	 */
-	protected function streamError( $code, $error = '' ) {
+	protected function streamError( int $httpCode, string $error = '' ): void {
 		$output = $this->getOutput();
-		$output->setStatusCode( $code );
+		$output->setStatusCode( $httpCode );
 		$output->setArticleBodyOnly( true );
 		$output->addHTML( $error );
-	}
-
-	protected function getGroupName() {
-		return 'media';
 	}
 }
