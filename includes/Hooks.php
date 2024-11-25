@@ -62,23 +62,28 @@ class Hooks implements
 	 * @param array &$software Array of wikitext and version numbers
 	 */
 	public function onSoftwareInfo( &$software ) {
-		$result = Shell::command( [ 'vips', '-v' ] )
-			->includeStderr()
-			->execute();
-
-		if ( $result->getExitCode() != 0 ) {
-			// Vips command is not avaliable, exit
-			return;
-		}
-		// Explode the string by '-'
-		// stdout returns something like vips-8.7.4-Sat Nov 21 16:50:57 UTC 2020
-		$parts = explode( '-', $result->getStdout() );
-		// Check if the first part exists and is a valid version number
-		if ( !isset( $parts[1] ) || !preg_match( '/^\d+\.\d+\.\d+$/', $parts[1] ) ) {
-			return;
+		$vipsVersion = VipsScaler::getSoftwareVersion();
+		if ( $vipsVersion ) {
+			$software[ '[https://www.libvips.org libvips]' ] = $vipsVersion;
 		}
 
-		// We've already logged if this isn't ok and there is no need to warn the user on this page.
-		$software[ '[https://www.libvips.org libvips]' ] = $parts[1];
+		// TODO: Move this to a class for ImageMagick
+		if ( extension_loaded( 'imagick' ) ) {
+			$imVersion = \Imagick::getVersion()['versionString'];
+			if ( $imVersion ) {
+				$parts = explode( ' ', $imVersion );
+				if ( isset( $parts[1] ) || preg_match( '/^\d+\.\d+\.\d+$/', $parts[1] ) ) {
+					$software[ '[https://imagemagick.org ImageMagick]' ] = $parts[1];
+				}
+			}
+		}
+
+		// TODO: Move this to a class for GD
+		if ( extension_loaded( 'gd' ) ) {
+			$gdVersion = gd_info()['GD Version'];
+			if ( $gdVersion ) {
+				$software[ '[https://www.php.net/manual/en/book.image.php GD]' ] = gd_info()['GD Version'];
+			}
+		}
 	}
 }
