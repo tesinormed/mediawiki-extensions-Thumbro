@@ -78,14 +78,22 @@
 		"VipsthumbnailCommand": {
 			"value": "/usr/bin/vipsthumbnail"
 		},
-		"VipsOptions": {
-			"value": []
-		},
 		"VipsThumbnailerHost": {
 			"value": null
 		},
 		"VipsTestExpiry": {
 			"value": 3600
+		},
+		"VipsConfig": {
+			"value": {
+				"image/png": {
+					"enabled": true,
+					"outputOptions": {
+						"strip": "true",
+						"filter": "VIPS_FOREIGN_PNG_FILTER_ALL"
+					}
+				}
+			}
 		}
 	},
 	"manifest_version": 2

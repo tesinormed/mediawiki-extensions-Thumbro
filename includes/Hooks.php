@@ -26,7 +26,11 @@ class Hooks implements
 	 * @return bool
 	 */
 	public function onBitmapHandlerTransform( $handler, $file, &$params, &$mto ) {
-		// Check $wgVipsConditions
+		list( $major, $minor ) = File::splitMime( $file->getMimeType() );
+		if ( $major !== 'image' ) {
+			return true;
+		}
+
 		$options = VipsScaler::getHandlerOptions( $handler, $file, $params );
 		if ( !$options ) {
 			wfDebug( "...\n" );

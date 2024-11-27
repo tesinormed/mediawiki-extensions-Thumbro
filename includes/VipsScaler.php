@@ -55,10 +55,10 @@ class VipsScaler {
 	): bool {
 		wfDebug( __METHOD__ . ': scaling ' . $file->getName() . " using vips\n" );
 
-		$vipsthumbnailCommands = self::makeCommands( $file, $params, $options );
+		$vipsthumbnailCommands = self::makeCommands( $params, $options );
 		if ( count( $vipsthumbnailCommands ) == 0 ) {
 			return true;
-		}	
+		}
 
 		// Execute the commands
 		/** @var VipsthumbnailCommand $command */
@@ -105,28 +105,8 @@ class VipsScaler {
 		return $outputArg;
 	}
 
-	public static function makeCommands(
-		File $file,
-		array $params,
-		array $options
-	): array {
+	public static function makeCommands( array $params, array $options ): array {
 		global $wgVipsthumbnailCommand;
-
-		list( $major, $minor ) = File::splitMime( $file->getMimeType() );
-		if ( $major !== 'image' ) {
-			return [];
-		}
-
-		$outputOptions = [];
-		switch( $minor ) {
-			case 'png':
-				// pngsave
-				$outputOptions += [
-					'strip' => 'true',
-					'filter' => 'VIPS_FOREIGN_PNG_FILTER_ALL',
-				];
-				break;
-		}
 
 		$commands = [];
 
@@ -134,7 +114,7 @@ class VipsScaler {
 		$baseCommand = new VipsthumbnailCommand( $wgVipsthumbnailCommand, [
 			'size' => $params['physicalWidth'] . 'x' . $params['physicalHeight']
 		] );
-		$baseCommand->setIO( $params['srcPath'], $params['dstPath'] . self::makeOutputOptions( $outputOptions ) );
+		$baseCommand->setIO( $params['srcPath'], $params['dstPath'] . self::makeOutputOptions( $options['outputOptions'] ?? [] ) );
 
 		$commands[] = $baseCommand;
 
@@ -142,60 +122,38 @@ class VipsScaler {
 	}
 
 	/**
-	 * Check the file and params against $wgVipsOptions
+	 * Check the file and params against $wgVipsConfig
 	 */
 	public static function getHandlerOptions(
 		TransformationalImageHandler $handler,
 		File $file,
 		array $params
 	): ?array {
-		global $wgVipsOptions;
+		global $wgVipsConfig;
 
 		wfDebug( __METHOD__ . ": Checking Vips options\n" );
 
-		if ( !isset( $params['page'] ) ) {
-			$page = 1;
-		} else {
-			$page = $params['page'];
-		}
-
 		# Iterate over conditions
-		foreach ( $wgVipsOptions as $option ) {
-			if ( isset( $option['conditions'] ) ) {
-				$condition = $option['conditions'];
-			} else {
-				# Unconditionally pass
-				return $option;
+		foreach ( $wgVipsConfig as $mimeType => $option ) {
+			if ( $mimeType !== $file->getMimeType() ) {
+				continue;
 			}
 
-			if ( 
-				isset( $condition['mimeType'] ) &&
-				$file->getMimeType() != $condition['mimeType']
-			) {
+			if ( !isset( $option['enabled'] ) || $option['enabled'] !== true ) {
 				continue;
 			}
 
 			if ( $file->isMultipage() ) {
-				$area = $file->getWidth( $page ) * $file->getHeight( $page );
-			} else {
-				$area = $handler->getImageArea( $file );
+				// Multi-page files are not supported
+				continue;
 			}
+
+			$area = $handler->getImageArea( $file );
+
 			if ( isset( $condition['minArea'] ) && $area < $condition['minArea'] ) {
 				continue;
 			}
 			if ( isset( $condition['maxArea'] ) && $area >= $condition['maxArea'] ) {
-				continue;
-			}
-
-			$shrinkFactor = $file->getWidth( $page ) / (
-				( ( $handler->getRotation( $file ) % 180 ) == 90 ) ?
-				$params['physicalHeight'] : $params['physicalWidth'] );
-			if ( isset( $condition['minShrinkFactor'] ) &&
-					$shrinkFactor < $condition['minShrinkFactor'] ) {
-				continue;
-			}
-			if ( isset( $condition['maxShrinkFactor'] ) &&
-					$shrinkFactor >= $condition['maxShrinkFactor'] ) {
 				continue;
 			}
 
