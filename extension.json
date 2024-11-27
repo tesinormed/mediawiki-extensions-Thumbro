@@ -83,6 +83,13 @@
 		},
 		"VipsConfig": {
 			"value": {
+				"image/jpeg": {
+					"enabled": true,
+					"outputOptions": {
+						"strip": "true",
+						"Q": "80"
+					}
+				},
 				"image/png": {
 					"enabled": true,
 					"outputOptions": {
