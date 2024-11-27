@@ -369,6 +369,7 @@ class SpecialVipsTest extends SpecialPage {
 
 		$config = $this->getConfig();
 		$vipsTestExpiry = $config->get( 'VipsTestExpiry' );
+		$vipsConfig = $config->get( 'VipsConfig' );
 
 		// Get the thumbnail
 		// No remote scaler, need to do it ourselves.
@@ -379,6 +380,7 @@ class SpecialVipsTest extends SpecialPage {
 		$dstUrl = '';
 		wfDebug( __METHOD__ . ": Creating vips thumbnail at $dstPath\n" );
 
+		$mimeType = $file->getMimeType();
 		$scalerParams = [
 			// The size to which the image will be resized
 			'physicalWidth' => $params['physicalWidth'],
@@ -393,7 +395,7 @@ class SpecialVipsTest extends SpecialPage {
 			// Properties of the original image
 			'srcWidth' => $file->getWidth(),
 			'srcHeight' => $file->getHeight(),
-			'mimeType' => $file->getMimeType(),
+			'mimeType' => $mimeType,
 			'srcPath' => $file->getLocalRefPath(),
 			'dstPath' => $dstPath,
 			'dstUrl' => $dstUrl,
@@ -401,6 +403,10 @@ class SpecialVipsTest extends SpecialPage {
 		];
 
 		$options = [];
+		if ( isset( $vipsConfig[$mimeType] ) && isset( $vipsConfig[$mimeType]['outputOptions'] ) ) {
+			$options['outputOptions'] = $vipsConfig[$mimeType]['outputOptions'];
+		}
+
 		/*
 		if ( $request->getBool( 'bilinear' ) ) {
 			$options['bilinear'] = true;
