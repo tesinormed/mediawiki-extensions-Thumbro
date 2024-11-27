@@ -279,7 +279,7 @@ class SpecialVipsTest extends SpecialPage {
 	/**
 	 * @return bool|string
 	 */
-	public static function validateFileInput( string $input, array $alldata ) {
+	public static function validateFileInput( ?string $input, array $alldata ) {
 		if ( !trim( $input ) ) {
 			// Don't show an error if the file is not yet specified,
 			// because it is annoying
