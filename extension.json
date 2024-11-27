@@ -78,9 +78,6 @@
 		"VipsthumbnailCommand": {
 			"value": "/usr/bin/vipsthumbnail"
 		},
-		"VipsThumbnailerHost": {
-			"value": null
-		},
 		"VipsTestExpiry": {
 			"value": 3600
 		},

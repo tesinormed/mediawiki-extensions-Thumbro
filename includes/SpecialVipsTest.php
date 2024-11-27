@@ -369,113 +369,69 @@ class SpecialVipsTest extends SpecialPage {
 
 		$config = $this->getConfig();
 		$vipsTestExpiry = $config->get( 'VipsTestExpiry' );
-		$vipsThumbnailerHost = $config->get( 'VipsThumbnailerHost' );
 
 		// Get the thumbnail
-		if ( $vipsThumbnailerHost === null || $request->getBool( 'noproxy' ) ) {
-			// No remote scaler, need to do it ourselves.
-			// Emulate the BitmapHandlerTransform hook
-			$tmpFile = VipsthumbnailCommand::makeTemp( $file->getExtension() );
-			$tmpFile->bind( $this );
-			$dstPath = $tmpFile->getPath();
-			$dstUrl = '';
-			wfDebug( __METHOD__ . ": Creating vips thumbnail at $dstPath\n" );
+		// No remote scaler, need to do it ourselves.
+		// Emulate the BitmapHandlerTransform hook
+		$tmpFile = VipsthumbnailCommand::makeTemp( $file->getExtension() );
+		$tmpFile->bind( $this );
+		$dstPath = $tmpFile->getPath();
+		$dstUrl = '';
+		wfDebug( __METHOD__ . ": Creating vips thumbnail at $dstPath\n" );
 
-			$scalerParams = [
-				// The size to which the image will be resized
-				'physicalWidth' => $params['physicalWidth'],
-				'physicalHeight' => $params['physicalHeight'],
-				'physicalDimensions' => "{$params['physicalWidth']}x{$params['physicalHeight']}",
-				// The size of the image on the page
-				'clientWidth' => $params['width'],
-				'clientHeight' => $params['height'],
-				// Comment as will be added to the EXIF of the thumbnail
-				'comment' => isset( $params['descriptionUrl'] ) ?
-					"File source: {$params['descriptionUrl']}" : '',
-				// Properties of the original image
-				'srcWidth' => $file->getWidth(),
-				'srcHeight' => $file->getHeight(),
-				'mimeType' => $file->getMimeType(),
-				'srcPath' => $file->getLocalRefPath(),
-				'dstPath' => $dstPath,
-				'dstUrl' => $dstUrl,
-				'interlace' => $request->getBool( 'interlace' ),
-			];
+		$scalerParams = [
+			// The size to which the image will be resized
+			'physicalWidth' => $params['physicalWidth'],
+			'physicalHeight' => $params['physicalHeight'],
+			'physicalDimensions' => "{$params['physicalWidth']}x{$params['physicalHeight']}",
+			// The size of the image on the page
+			'clientWidth' => $params['width'],
+			'clientHeight' => $params['height'],
+			// Comment as will be added to the EXIF of the thumbnail
+			'comment' => isset( $params['descriptionUrl'] ) ?
+				"File source: {$params['descriptionUrl']}" : '',
+			// Properties of the original image
+			'srcWidth' => $file->getWidth(),
+			'srcHeight' => $file->getHeight(),
+			'mimeType' => $file->getMimeType(),
+			'srcPath' => $file->getLocalRefPath(),
+			'dstPath' => $dstPath,
+			'dstUrl' => $dstUrl,
+			'interlace' => $request->getBool( 'interlace' ),
+		];
 
-			$options = [];
-			/*
-			if ( $request->getBool( 'bilinear' ) ) {
-				$options['bilinear'] = true;
-				wfDebug( __METHOD__ . ": using bilinear scaling\n" );
-			}
-			if ( $request->getRawVal( 'sharpen' ) !== null && $request->getFloat( 'sharpen' ) < 5 ) {
-				// Limit sharpen sigma to 5, otherwise we have to write huge convolution matrices
-				$sharpen = $request->getFloat( 'sharpen' );
-				$options['sharpen'] = [ 'sigma' => $sharpen ];
-				wfDebug( __METHOD__ . ": sharpening with radius {$sharpen}\n" );
-			}
-			*/
-
-			// Call the hook
-			/** @var MediaTransformOutput $mto */
-			VipsScaler::doTransform( $handler, $file, $scalerParams, $options, $mto );
-			if ( $mto && !$mto->isError() ) {
-				wfDebug( __METHOD__ . ": streaming thumbnail...\n" );
-				$this->getOutput()->disable();
-				StreamFile::stream( $dstPath, [
-					"Cache-Control: public, max-age=$vipsTestExpiry, s-maxage=$vipsTestExpiry",
-					'Expires: ' . gmdate( 'r ', time() + $vipsTestExpiry )
-				] );
-			} else {
-				'@phan-var MediaTransformError $mto';
-				$this->streamError( 500, $mto->getHtmlMsg() );
-			}
-
-			// Cleanup the temporary file
-			// phpcs:ignore Generic.PHP.NoSilencedErrors.Discouraged
-			@unlink( $dstPath );
-		} else {
-			// Request the thumbnail at a remote scaler
-			$url = wfExpandUrl( $request->getRequestURL(), PROTO_INTERNAL );
-			$url = wfAppendQuery( $url, [ 'noproxy' => '1' ] );
-			wfDebug( __METHOD__ . ": Getting vips thumb from remote url $url\n" );
-
-			$bits = IPUtils::splitHostAndPort( $vipsThumbnailerHost  );
-			if ( !$bits ) {
-				throw new MWException( __METHOD__ . ': $wgVipsThumbnailerHost is not set to a valid host' );
-			}
-			list( $host, $port ) = $bits;
-			if ( $port === false ) {
-				$port = 80;
-			}
-			$proxy = IPUtils::combineHostAndPort( $host, $port );
-
-			$options = [
-				'method' => 'GET',
-				'proxy' => $proxy,
-			];
-
-			$req = $services->getHttpRequestFactory()
-				->create( $url, $options, __METHOD__ );
-			$status = $req->execute();
-			if ( $status->isOk() ) {
-				// Disable output and stream the file
-				$this->getOutput()->disable();
-				wfResetOutputBuffers();
-				header( 'Content-Type: ' . $file->getMimeType() );
-				header( 'Content-Length: ' . strlen( $req->getContent() ) );
-				header( "Cache-Control: public, max-age=$vipsTestExpiry, s-maxage=$vipsTestExpiry" );
-				header( 'Expires: ' . gmdate( 'r ', time() + $vipsTestExpiry ) );
-				print $req->getContent();
-			} elseif ( $status->hasMessage( 'http-bad-status' ) ) {
-				$this->streamError( 500, $req->getContent() );
-				return;
-			} else {
-				$wikitext = Status::wrap( $status )->getWikiText();
-				$this->streamError( 500, $this->getOutput()->parseAsInterface( $wikitext ) );
-				return;
-			}
+		$options = [];
+		/*
+		if ( $request->getBool( 'bilinear' ) ) {
+			$options['bilinear'] = true;
+			wfDebug( __METHOD__ . ": using bilinear scaling\n" );
 		}
+		if ( $request->getRawVal( 'sharpen' ) !== null && $request->getFloat( 'sharpen' ) < 5 ) {
+			// Limit sharpen sigma to 5, otherwise we have to write huge convolution matrices
+			$sharpen = $request->getFloat( 'sharpen' );
+			$options['sharpen'] = [ 'sigma' => $sharpen ];
+			wfDebug( __METHOD__ . ": sharpening with radius {$sharpen}\n" );
+		}
+		*/
+
+		// Call the hook
+		/** @var MediaTransformOutput $mto */
+		VipsScaler::doTransform( $handler, $file, $scalerParams, $options, $mto );
+		if ( $mto && !$mto->isError() ) {
+			wfDebug( __METHOD__ . ": streaming thumbnail...\n" );
+			$this->getOutput()->disable();
+			StreamFile::stream( $dstPath, [
+				"Cache-Control: public, max-age=$vipsTestExpiry, s-maxage=$vipsTestExpiry",
+				'Expires: ' . gmdate( 'r ', time() + $vipsTestExpiry )
+			] );
+		} else {
+			'@phan-var MediaTransformError $mto';
+			$this->streamError( 500, $mto->getHtmlMsg() );
+		}
+
+		// Cleanup the temporary file
+		// phpcs:ignore Generic.PHP.NoSilencedErrors.Discouraged
+		@unlink( $dstPath );
 	}
 
 	/**
