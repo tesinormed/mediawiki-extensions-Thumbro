@@ -1,10 +1,10 @@
 <div align="center">
 👍🖼️😎
 <h1>Thumbro</h1>
-<p>Can we get Thumbor for the wiki?<br>
+<blockquote><p><i>Can we get Thumbor for the wiki?<br>
 We have Thumbor at home.<br>
 Thumbor at home:
-</p>
+</i></p></blockquote>
 </div>
 
 Thumbro is an in-development MediaWiki extension used to improve and expand thumbnailing in MediaWiki. It is unstable for production use. It is forked from [Extension:VipsScaler](https://www.mediawiki.org/wiki/Extension:VipsScaler). Currently, it only supports [libvips](https://www.libvips.org).
