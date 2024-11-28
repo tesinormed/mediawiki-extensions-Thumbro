@@ -12,7 +12,7 @@ Thumbro is an in-development MediaWiki extension used to improve and expand thum
 ## Features
 - Use libvips to render thumbnails instead of ImageMagick and GD
 - Allow custom output options for libvips
-- Render WebP thumbnails by default for jpeg, png, webp
+- Render WebP thumbnails by default for gif (animated too!), jpeg, png, webp
 
 ## Installation
 1. Install libvips

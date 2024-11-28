@@ -64,8 +64,8 @@ class Libvips {
 		foreach ( $commands as $i => $command ) {
 			$retval = $command->execute();
 			if ( $retval != 0 ) {
-				wfDebug( "[Extension:Thumbro] libvips command failed!" );
 				$error = $command->getErrorString() . "\nError code: $retval";
+				wfDebug( "[Extension:Thumbro] libvips command failed!\n$error" );
 				$mto = $handler->getMediaTransformError( $params, $error );
 				return false;
 			}
@@ -90,18 +90,18 @@ class Libvips {
 	 * 
 	 * @see https://www.libvips.org/API/current/Using-vipsthumbnail.html#output-format-and-options
 	 */
-	private static function makeOutputOptions( array $args ): string {
-		$outputArg = '';
+	private static function makeOptions( array $args ): string {
+		$arg = '';
 		if ( count( $args ) > 0  ) {
 			// Format output options into [key=value,key=value] format
-			$outputArg = '[';
+			$arg = '[';
 			foreach ( $args as $key => $value ) {
-				$outputArg .= "$key=$value,";
+				$arg .= "$key=$value,";
 			}
-			$outputArg = rtrim( $outputArg, "," );
-			$outputArg .= "]";
+			$arg = rtrim( $arg, "," );
+			$arg .= "]";
 		}
-		return $outputArg;
+		return $arg;
 	}
 
 	public static function makeCommands( array $params, array $options ): array {
@@ -110,7 +110,10 @@ class Libvips {
 		$baseCommand = new ShellCommand( 'libvips', $options['command'], [
 			'size' => $params['physicalWidth'] . 'x' . $params['physicalHeight']
 		] );
-		$baseCommand->setIO( $params['srcPath'], $params['dstPath'] . self::makeOutputOptions( $options['outputOptions'] ?? [] ) );
+		$baseCommand->setIO(
+			$params['srcPath'] . self::makeOptions( $options['inputOptions'] ?? [] ),
+			$params['dstPath'] . self::makeOptions( $options['outputOptions'] ?? [] )
+		);
 
 		$commands[] = $baseCommand;
 

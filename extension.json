@@ -46,6 +46,7 @@
 		}
 	},
 	"MediaHandlers": {
+		"image/gif": "MediaWiki\\Extension\\Thumbro\\MediaHandlers\\ThumbroGIFHandler",
 		"image/jpeg": "MediaWiki\\Extension\\Thumbro\\MediaHandlers\\ThumbroJpegHandler",
 		"image/png": "MediaWiki\\Extension\\Thumbro\\MediaHandlers\\ThumbroPNGHandler",
 		"image/webp": "MediaWiki\\Extension\\Thumbro\\MediaHandlers\\ThumbroWebPHandler"
@@ -81,6 +82,13 @@
 		},
 		"ThumbroOptions": {
 			"value": {
+				"image/gif": {
+					"enabled": true,
+					"library": "libvips",
+					"inputOptions": {
+						"n": "-1"
+					}
+				},
 				"image/jpeg": {
 					"enabled": true,
 					"library": "libvips",

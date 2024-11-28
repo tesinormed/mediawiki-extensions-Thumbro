@@ -21,13 +21,11 @@ class Utils {
 	): ?array {
 		$options = $config->get( 'ThumbroOptions' );
 		$libraries = $config->get( 'ThumbroLibraries' );
-		// We don't care about the source file format,
-		// because we only need to know what the output format would be to apply
-		// output options (e.g. WebP -> PNG)
-		$thumbMimeType = $handler->getThumbType( $file->getExtension(), $file->getMimeType() )[1];
+		$inputMimeType = $file->getMimeType();
+		$outputMimeType = $handler->getThumbType( $file->getExtension(), $inputMimeType )[1];
 
 		foreach ( $options as $mimeType => $option ) {
-			if ( $mimeType !== $thumbMimeType ) {
+			if ( $mimeType !== $outputMimeType ) {
 				continue;
 			}
 
@@ -53,6 +51,9 @@ class Utils {
 			if ( isset( $option['maxArea'] ) && $area >= $option['maxArea'] ) {
 				continue;
 			}
+
+			// Always set input options
+			$option['inputOptions'] = $options[$inputMimeType]['inputOptions'] ?? [];
 
 			return $option;
 		}
