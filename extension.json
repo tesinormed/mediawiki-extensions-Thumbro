@@ -1,6 +1,6 @@
 {
 	"name": "Thumbro",
-	"version": "0.0.1",
+	"version": "0.0.2",
 	"author": [
 		"[https://www.mediawiki.org/wiki/User:Alistair3149 Alistair3149]",
 		"Bryan Tong Minh"
@@ -44,6 +44,11 @@
 				"ConfigFactory"
 			]
 		}
+	},
+	"MediaHandlers": {
+		"image/jpeg": "MediaWiki\\Extension\\Thumbro\\MediaHandlers\\ThumbroJpegHandler",
+		"image/png": "MediaWiki\\Extension\\Thumbro\\MediaHandlers\\ThumbroPNGHandler",
+		"image/webp": "MediaWiki\\Extension\\Thumbro\\MediaHandlers\\ThumbroWebPHandler"
 	},
 	"ResourceModules": {
 		"ext.thumbro": {
@@ -97,9 +102,8 @@
 					"library": "libvips",
 					"outputOptions": {
 						"strip": "true",
-						"Q": "80",
-						"smart_subsample": "true",
-						"near_lossless": "true"
+						"Q": "90",
+						"smart_subsample": "true"
 					}
 				}
 			}
