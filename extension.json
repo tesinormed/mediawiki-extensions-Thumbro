@@ -91,6 +91,16 @@
 						"strip": "true",
 						"filter": "VIPS_FOREIGN_PNG_FILTER_ALL"
 					}
+				},
+				"image/webp": {
+					"enabled": true,
+					"library": "libvips",
+					"outputOptions": {
+						"strip": "true",
+						"Q": "80",
+						"smart_subsample": "true",
+						"near_lossless": "true"
+					}
 				}
 			}
 		},

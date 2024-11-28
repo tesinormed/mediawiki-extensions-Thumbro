@@ -21,9 +21,13 @@ class Utils {
 	): ?array {
 		$options = $config->get( 'ThumbroOptions' );
 		$libraries = $config->get( 'ThumbroLibraries' );
+		// We don't care about the source file format,
+		// because we only need to know what the output format would be to apply
+		// output options (e.g. WebP -> PNG)
+		$thumbMimeType = $handler->getThumbType( $file->getExtension(), $file->getMimeType() )[1];
 
 		foreach ( $options as $mimeType => $option ) {
-			if ( $mimeType !== $file->getMimeType() ) {
+			if ( $mimeType !== $thumbMimeType ) {
 				continue;
 			}
 
