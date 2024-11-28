@@ -54,7 +54,7 @@ class Libvips {
 		array $options,
 		?MediaTransformOutput &$mto
 	): bool {
-		wfDebug( "[Extension:Thumbro] Creating thumbnails for {$file->getName()} using libvips\n" );
+		wfDebug( "[Extension:Thumbro] Creating thumbnails for {$file->getName()} using libvips" );
 
 		$commands = self::makeCommands( $params, $options );
 		if ( count( $commands ) == 0 ) {
@@ -66,7 +66,7 @@ class Libvips {
 		foreach ( $commands as $i => $command ) {
 			$retval = $command->execute();
 			if ( $retval != 0 ) {
-				wfDebug( "[Extension:Thumbro] libvips command failed!\n" );
+				wfDebug( "[Extension:Thumbro] libvips command failed!" );
 				$error = $command->getErrorString() . "\nError code: $retval";
 				$mto = $handler->getMediaTransformError( $params, $error );
 				return false;

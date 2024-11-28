@@ -6,6 +6,7 @@ namespace MediaWiki\Extension\Thumbro;
 
 use Config;
 use File;
+use MediaWiki\Shell\Shell;
 use TransformationalImageHandler;
 
 class Utils {

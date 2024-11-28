@@ -143,7 +143,7 @@ class ShellCommand {
 	public function execute(): int {
 		$cmd = $this->buildCommand();
 
-		wfDebug( sprintf( '[Extension:Thumbro] Executing %s: "%s"\n',
+		wfDebug( sprintf( '[Extension:Thumbro] Executing %s: "%s"',
 			$this->name,
 			implode('" "', $cmd )
 		) );

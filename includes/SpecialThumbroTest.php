@@ -344,13 +344,13 @@ class SpecialThumbroTest extends SpecialPage {
 		// Validate title and file existance
 		$title = Title::newFromText( $request->getText( 'thumb' ), NS_FILE );
 		if ( $title === null ) {
-			$this->streamError( 404, "Thumbro: invalid title\n" );
+			$this->streamError( 404, "Thumbro: invalid title" );
 			return;
 		}
 		$services = MediaWikiServices::getInstance();
 		$file = $services->getRepoGroup()->findFile( $title );
 		if ( !$file || !$file->exists() ) {
-			$this->streamError( 404, "Thumbro: file not found\n" );
+			$this->streamError( 404, "Thumbro: file not found" );
 			return;
 		}
 
@@ -358,7 +358,7 @@ class SpecialThumbroTest extends SpecialPage {
 		$handler = $file->getHandler();
 		$params = [ 'width' => $request->getInt( 'width' ) ];
 		if ( !$handler->normaliseParams( $file, $params ) ) {
-			$this->streamError( 500, "Thumbro: invalid parameters\n" );
+			$this->streamError( 500, "Thumbro: invalid parameters" );
 			return;
 		}
 
@@ -374,7 +374,7 @@ class SpecialThumbroTest extends SpecialPage {
 		$tmpFile->bind( $this );
 		$dstPath = $tmpFile->getPath();
 		$dstUrl = '';
-		wfDebug( __METHOD__ . ": Creating vips thumbnail at $dstPath\n" );
+		wfDebug( __METHOD__ . ": Creating vips thumbnail at $dstPath" );
 
 		$mimeType = $file->getMimeType();
 		$scalerParams = [
@@ -409,13 +409,13 @@ class SpecialThumbroTest extends SpecialPage {
 		/*
 		if ( $request->getBool( 'bilinear' ) ) {
 			$options['bilinear'] = true;
-			wfDebug( __METHOD__ . ": using bilinear scaling\n" );
+			wfDebug( __METHOD__ . ": using bilinear scaling" );
 		}
 		if ( $request->getRawVal( 'sharpen' ) !== null && $request->getFloat( 'sharpen' ) < 5 ) {
 			// Limit sharpen sigma to 5, otherwise we have to write huge convolution matrices
 			$sharpen = $request->getFloat( 'sharpen' );
 			$options['sharpen'] = [ 'sigma' => $sharpen ];
-			wfDebug( __METHOD__ . ": sharpening with radius {$sharpen}\n" );
+			wfDebug( __METHOD__ . ": sharpening with radius {$sharpen}" );
 		}
 		*/
 
@@ -423,7 +423,7 @@ class SpecialThumbroTest extends SpecialPage {
 		/** @var MediaTransformOutput $mto */
 		Libvips::doTransform( $handler, $file, $scalerParams, $options, $mto );
 		if ( $mto && !$mto->isError() ) {
-			wfDebug( __METHOD__ . ": streaming thumbnail...\n" );
+			wfDebug( __METHOD__ . ": streaming thumbnail..." );
 			$this->getOutput()->disable();
 			StreamFile::stream( $dstPath, [
 				"Cache-Control: public, max-age=$thumbroTestExpiry, s-maxage=$thumbroTestExpiry",

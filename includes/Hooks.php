@@ -11,6 +11,7 @@ use MediaWiki\Hook\BitmapHandlerCheckImageAreaHook;
 use MediaWiki\Hook\BitmapHandlerTransformHook;
 use MediaWiki\Hook\SoftwareInfoHook;
 use MediaWiki\MainConfigNames;
+use MediaWiki\Shell\Shell;
 use TransformationalImageHandler;
 
 class Hooks implements
@@ -35,6 +36,10 @@ class Hooks implements
 	 * @return bool
 	 */
 	public function onBitmapHandlerTransform( $handler, $file, &$params, &$mto ) {
+		if ( Shell::isDisabled() ) {
+			return true;
+		}
+
 		$config = $this->config;
 		$options = Utils::getOptions( $handler, $file, $config );
 		if ( $options === null ) {
@@ -60,7 +65,7 @@ class Hooks implements
 
 		/** @phan-suppress-next-line PhanTypeMismatchArgumentSuperType ImageHandler vs. MediaHandler */
 		if ( Utils::getOptions( $file->getHandler(), $file, $config ) !== false ) {
-			wfDebug( "[Extension:Thumbro] Overriding wgMaxImageArea: $maxImageArea\n" );
+			wfDebug( "[Extension:Thumbro] Overriding wgMaxImageArea: $maxImageArea" );
 			$result = true;
 			return false;
 		}
@@ -74,6 +79,10 @@ class Hooks implements
 	 * @param array &$software Array of wikitext and version numbers
 	 */
 	public function onSoftwareInfo( &$software ) {
+		if ( Shell::isDisabled() ) {
+			return;
+		}
+
 		$vipsVersion = Libvips::getSoftwareVersion();
 		if ( $vipsVersion ) {
 			$software[ '[https://www.libvips.org libvips]' ] = $vipsVersion;
