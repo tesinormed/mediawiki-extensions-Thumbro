@@ -403,8 +403,8 @@ class SpecialThumbroTest extends SpecialPage {
 			$options['outputOptions'] = $thumbroOptions[$mimeType]['outputOptions'];
 		}
 
-		$library = $thumbroOptions[$mimeType]['library'];
-		$options['command'] = $thumbroLibraries[$library]['command'] ?? 'libvips';
+		$library = $thumbroOptions[$mimeType]['library'] ?? 'libvips';
+		$options['command'] = $thumbroLibraries[$library]['command'];
 
 		/*
 		if ( $request->getBool( 'bilinear' ) ) {
