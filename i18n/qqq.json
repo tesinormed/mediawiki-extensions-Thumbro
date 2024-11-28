@@ -7,12 +7,12 @@
 		]
 	},
 	"thumbrotest": "{{doc-special|ThumbroTest|unlisted=1}}",
-	"thumbro-desc": "{{desc|name=Vips Scaler|url=https://www.mediawiki.org/wiki/Extension:Thumbro}}",
+	"thumbro-desc": "{{desc|name=Thumbro|url=https://www.mediawiki.org/wiki/Extension:Thumbro}}",
 	"thumbro-invalid-file": "Error message when SpecialVipsTest was given a non existent or invalid file name",
 	"thumbro-invalid-width": "Error message when SpecialVipsTest did not get a valid width parameter\n\nSee also {{msg-mw|Vipsscaler-invalid-sharpen}}",
 	"thumbro-invalid-sharpen": "Error message when SpecialVipsTest did not get a valid sharpen parameter\n\nSee also {{msg-mw|Vipsscaler-invalid-width}}",
-	"thumbro-thumb-error": "Error message when VIPS did not manage to generate a thumbnail",
-	"thumbro-thumb-notscaled": "Error message when VIPS did not scale the thumbnail.",
+	"thumbro-thumb-error": "Error message when libvips did not manage to generate a thumbnail",
+	"thumbro-thumb-notscaled": "Error message when libvips did not scale the thumbnail.",
 	"thumbro-form-legend": "Special:ThumbroTest form: legend at top of the form",
 	"thumbro-form-width": "Special:ThumbroTest form: label for the width input box",
 	"thumbro-form-file": "Special:ThumbroTest form: label for the file input box",
@@ -23,10 +23,10 @@
 	"thumbro-thumbs-help": "Used as help text for the result on [[wikipedia:Special:ThumbroTest|Special:ThumbroTest]]",
 	"thumbro-thumbs-switch-label": "Used as label for a checkbox shown in the result on [[wikipedia:Special:ThumbroTest|Special:ThumbroTest]]",
 	"thumbro-default-thumb": "Special:ThumbroTest: caption of the default thumbnail",
-	"thumbro-vips-thumb": "Special:ThumbroTest: caption of the vips thumbnail",
+	"thumbro-vips-thumb": "Special:ThumbroTest: caption of the libvips thumbnail",
 	"thumbro-show-both": "Special:ThumbroTest: button to show both thumbnails",
 	"thumbro-show-default": "Special:ThumbroTest: button to show default thumbnail only",
-	"thumbro-show-vips": "Special:ThumbroTest: button to show VIPS thumbnail only",
+	"thumbro-show-vips": "Special:ThumbroTest: button to show libvips thumbnail only",
 	"action-thumbro-test": "{{doc-action|thumbro-test}}",
 	"right-thumbro-test": "{{doc-right|thumbro-test}}"
 }
