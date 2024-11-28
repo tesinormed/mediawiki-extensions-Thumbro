@@ -24,6 +24,8 @@ wfLoadExtension( 'Thumbro' );
 3. **✔️Done** - Navigate to Special:Version on your wiki to verify that the extension is successfully installed.
 
 ## Configurations
+**Thumbro works out of the box without any configurations.** The config flags allow more customization on the specific features in the extension.
+
 `$wgThumbroLibraries` is used to define the libraries used in Thumbro.
 
 Key | Description 
