@@ -1,7 +1,7 @@
 <div align="center">
 👍🖼️😎
 <h1>Thumbro</h1>
-<p>Can we get Thumbor?<br>
+<p>Can we get Thumbor for the wiki?<br>
 We have Thumbor at home.<br>
 Thumbor at home:
 </p>
