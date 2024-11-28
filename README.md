@@ -15,7 +15,10 @@ Thumbro is an in-development MediaWiki extension used to improve and expand thum
 - Render WebP thumbnails by default for gif (animated too!), jpeg, png, webp
 
 ## Installation
-1. Install libvips
+1. Install [libvips](https://www.libvips.org/install.html). For Debian-based systems:
+```console
+apt-get install libvips-tools
+```
 2. [Download](https://github.com/StarCitizenTools/mediawiki-extensions-Thumbro/archive/main.zip) and place the file(s) in a directory called `Thumbro` in your `extensions/` folder.
 3. Add the following code at the bottom of your LocalSettings.php and **after all other extensions**:
 ```php
