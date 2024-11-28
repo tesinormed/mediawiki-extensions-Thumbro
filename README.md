@@ -7,7 +7,7 @@ Thumbor at home:
 </i></p></blockquote>
 </div>
 
-Thumbro is an in-development MediaWiki extension used to improve and expand thumbnailing in MediaWiki. It is unstable for production use. It is forked from [Extension:VipsScaler](https://www.mediawiki.org/wiki/Extension:VipsScaler). Currently, it only supports [libvips](https://www.libvips.org).
+**Thumbro** is an in-development MediaWiki extension used to improve and expand thumbnailing in MediaWiki. It is unstable for production use. It is forked from [Extension:VipsScaler](https://www.mediawiki.org/wiki/Extension:VipsScaler). Currently, it only supports [libvips](https://www.libvips.org).
 
 ## Features
 - Use libvips to render thumbnails instead of ImageMagick and GD
@@ -27,7 +27,7 @@ wfLoadExtension( 'Thumbro' );
 3. **✔️Done** - Navigate to Special:Version on your wiki to verify that the extension is successfully installed.
 
 ## Configurations
-**Thumbro works out of the box without any configurations.** The config flags allow more customization on the specific features in the extension.
+> ℹ️ **Thumbro works out of the box without any configurations.**
 
 `$wgThumbroLibraries` is used to define the libraries used in Thumbro.
 
