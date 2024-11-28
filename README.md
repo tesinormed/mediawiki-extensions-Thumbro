@@ -16,7 +16,7 @@ Thumbro is an in-development MediaWiki extension used to improve and expand thum
 
 ## Installation
 1. Install libvips
-2. [Download](https://github.com/StarCitizenTools/mediawiki-extensions-Thumbro/archive/main.zip) place the file(s) in a directory called `Thumbro` in your `extensions/` folder.
+2. [Download](https://github.com/StarCitizenTools/mediawiki-extensions-Thumbro/archive/main.zip) and place the file(s) in a directory called `Thumbro` in your `extensions/` folder.
 3. Add the following code at the bottom of your LocalSettings.php and **after all other extensions**:
 ```php
 wfLoadExtension( 'Thumbro' );
