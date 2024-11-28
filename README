@@ -1,4 +1,4 @@
-VipsScaler extension for MediaWiki
+Thumbro extension for MediaWiki
 
 This extension is a wrapper around VIPS a free image processing software.
 

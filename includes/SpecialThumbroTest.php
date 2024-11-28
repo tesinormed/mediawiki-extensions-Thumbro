@@ -20,16 +20,15 @@
  * @file
  */
 
-namespace MediaWiki\Extension\VipsScaler;
+namespace MediaWiki\Extension\Thumbro;
 
 use Html;
 use HTMLForm;
 use HTMLIntField;
 use HTMLTextField;
-use MediaTransformError;
 use MediaTransformOutput;
+use MediaWiki\Extension\Thumbro\Libraries\Libvips;
 use MediaWiki\MediaWikiServices;
-use MWException;
 use OOUI\CheckboxInputWidget;
 use OOUI\FieldLayout;
 use OOUI\FieldsetLayout;
@@ -42,15 +41,14 @@ use Status;
 use StreamFile;
 use MediaWiki\Title\Title;
 use User;
-use Wikimedia\IPUtils;
 
 /**
- * A Special page intended to test the VipsScaler.
+ * A Special page intended to test Thumbro.
  * @author Bryan Tong Minh
  */
-class SpecialVipsTest extends SpecialPage {
+class SpecialThumbroTest extends SpecialPage {
 	public function __construct() {
-		parent::__construct( 'VipsTest', 'vipsscaler-test' );
+		parent::__construct( 'ThumbroTest', 'thumbro-test' );
 	}
 
 	/**
@@ -64,14 +62,14 @@ class SpecialVipsTest extends SpecialPage {
 	 * @inheritDoc
 	 */
 	public function userCanExecute( User $user ): bool {
-		return $this->getConfig()->get( 'VipsExposeTestPage' ) && parent::userCanExecute( $user );
+		return $this->getConfig()->get( 'ThumbroExposeTestPage' ) && parent::userCanExecute( $user );
 	}
 
 	/**
 	 * @inheritDoc
 	 */
 	public function displayRestrictionError(): void {
-		if ( !$this->getConfig()->get( 'VipsExposeTestPage' ) ) {
+		if ( !$this->getConfig()->get( 'ThumbroExposeTestPage' ) ) {
 			throw new PermissionsError(
 				null,
 				[ 'querypage-disabled' ]
@@ -112,20 +110,20 @@ class SpecialVipsTest extends SpecialPage {
 		// Check if valid file was provided
 		$title = Title::newFromText( $request->getText( 'file' ), NS_FILE );
 		if ( $title === null ) {
-			$this->getOutput()->addWikiMsg( 'vipsscaler-invalid-file' );
+			$this->getOutput()->addWikiMsg( 'thumbro-invalid-file' );
 			return;
 		}
 		$services = MediaWikiServices::getInstance();
 		$file = $services->getRepoGroup()->findFile( $title );
 		if ( !$file || !$file->exists() ) {
-			$this->getOutput()->addWikiMsg( 'vipsscaler-invalid-file' );
+			$this->getOutput()->addWikiMsg( 'thumbro-invalid-file' );
 			return;
 		}
 
 		// Create options
 		$width = $request->getInt( 'width' );
 		if ( !$width ) {
-			$this->getOutput()->addWikiMsg( 'vipsscaler-invalid-width' );
+			$this->getOutput()->addWikiMsg( 'thumbro-invalid-width' );
 			return;
 		}
 		$vipsUrlOptions = [ 'thumb' => $file->getName(), 'width' => $width ];
@@ -142,51 +140,51 @@ class SpecialVipsTest extends SpecialPage {
 		$params = [ 'width' => $width ];
 		$thumb = $file->transform( $params );
 		if ( !$thumb || $thumb->isError() ) {
-			$this->getOutput()->addWikiMsg( 'vipsscaler-thumb-error' );
+			$this->getOutput()->addWikiMsg( 'thumbro-thumb-error' );
 			return;
 		}
 
 		// Check if we actually scaled the file
 		$normalThumbUrl = $thumb->getUrl();
 		if ( $services->getUrlUtils()->expand( $normalThumbUrl ) == $file->getFullUrl() ) {
-			$this->getOutput()->addWikiMsg( 'vipsscaler-thumb-notscaled' );
+			$this->getOutput()->addWikiMsg( 'thumbro-thumb-notscaled' );
 		}
 
 		// Make url to the vips thumbnail
 		$vipsThumbUrl = $this->getPageTitle()->getLocalUrl( $vipsUrlOptions );
 
 		// HTML for the thumbnails
-		$thumbs = new HtmlSnippet( Html::rawElement( 'div', [ 'id' => 'mw-vipstest-thumbnails' ],
+		$thumbs = new HtmlSnippet( Html::rawElement( 'div', [ 'id' => 'mw-thumbrotest-thumbnails' ],
 			Html::element( 'img', [
 				'src' => $normalThumbUrl,
-				'alt' => $this->msg( 'vipsscaler-default-thumb' )->text(),
+				'alt' => $this->msg( 'thumbro-default-thumb' )->text(),
 			] ) . ' ' .
 			Html::element( 'img', [
 				'src' => $vipsThumbUrl,
-				'alt' => $this->msg( 'vipsscaler-vips-thumb' )->text(),
+				'alt' => $this->msg( 'thumbro-vips-thumb' )->text(),
 			] )
 		) );
 
 		// Helper messages shown above the thumbnails rendering
 		$form = [
-			new LabelWidget( [ 'label' => $this->msg( 'vipsscaler-thumbs-help' )->text() ] )
+			new LabelWidget( [ 'label' => $this->msg( 'thumbro-thumbs-help' )->text() ] )
 		];
 
 		// A checkbox to easily alternate between both views:
 		$form[] = new FieldLayout(
 				new CheckboxInputWidget( [
-					'name' => 'mw-vipstest-thumbs-switch',
-					'inputId' => 'mw-vipstest-thumbs-switch',
+					'name' => 'mw-thumbrotest-thumbs-switch',
+					'inputId' => 'mw-thumbrotest-thumbs-switch',
 				] ),
 				[
-					'label' => $this->msg( 'vipsscaler-thumbs-switch-label' )->text(),
+					'label' => $this->msg( 'thumbro-thumbs-switch-label' )->text(),
 					'align' => 'inline',
 					'infusable' => true,
 				]
 			);
 
 		$fieldset = new FieldsetLayout( [
-			'label' => $this->msg( 'vipsscaler-thumbs-legend' )->text(),
+			'label' => $this->msg( 'thumbro-thumbs-legend' )->text(),
 			'items' => $form,
 		] );
 
@@ -200,10 +198,7 @@ class SpecialVipsTest extends SpecialPage {
 		);
 
 		// Finally output all of the above
-		$this->getOutput()->addModules( [
-			'ext.vipsscaler',
-			'jquery.ucompare',
-		] );
+		$this->getOutput()->addModules( [ 'ext.thumbro' ] );
 	}
 
 	/**
@@ -211,8 +206,8 @@ class SpecialVipsTest extends SpecialPage {
 	 */
 	protected function showForm(): void {
 		$form = HTMLForm::factory( 'ooui', $this->getFormFields(), $this->getContext() );
-		$form->setWrapperLegend( $this->msg( 'vipsscaler-form-legend' )->text() );
-		$form->setSubmitText( $this->msg( 'vipsscaler-form-submit' )->text() );
+		$form->setWrapperLegend( $this->msg( 'thumbro-form-legend' )->text() );
+		$form->setSubmitText( $this->msg( 'thumbro-form-submit' )->text() );
 		$form->setSubmitCallback( [ __CLASS__, 'processForm' ] );
 		$form->setMethod( 'get' );
 
@@ -227,7 +222,7 @@ class SpecialVipsTest extends SpecialPage {
 	}
 
 	/**
-	 * [[Special:VipsTest]] form structure for HTMLForm
+	 * [[Special:ThumbroTest]] form structure for HTMLForm
 	 */
 	protected function getFormFields(): array {
 		$fields = [
@@ -236,7 +231,7 @@ class SpecialVipsTest extends SpecialPage {
 				'class'         => HTMLTextField::class,
 				'required'      => true,
 				'size' 			=> '80',
-				'label-message' => 'vipsscaler-form-file',
+				'label-message' => 'thumbro-form-file',
 				'validation-callback' => [ __CLASS__, 'validateFileInput' ],
 			],
 			'Width' => [
@@ -245,7 +240,7 @@ class SpecialVipsTest extends SpecialPage {
 				'default'       => '640',
 				'size'          => '5',
 				'required'      => true,
-				'label-message' => 'vipsscaler-form-width',
+				'label-message' => 'thumbro-form-width',
 				'validation-callback' => [ __CLASS__, 'validateWidth' ],
 			],
 			/*
@@ -254,13 +249,13 @@ class SpecialVipsTest extends SpecialPage {
 				'class'         => HTMLFloatField:class,
 				'default'		=> '0.0',
 				'size'			=> '5',
-				'label-message' => 'vipsscaler-form-sharpen-radius',
+				'label-message' => 'thumbro-form-sharpen-radius',
 				'validation-callback' => [ __CLASS__, 'validateSharpen' ],
 			],
 			'Bilinear' => [
 				'name' 			=> 'bilinear',
 				'class' 		=> HTMLCheckField::class,
-				'label-message'	=> 'vipsscaler-form-bilinear',
+				'label-message'	=> 'thumbro-form-bilinear',
 			],
 			*/
 		];
@@ -288,11 +283,11 @@ class SpecialVipsTest extends SpecialPage {
 
 		$title = Title::newFromText( $input, NS_FILE );
 		if ( $title === null ) {
-			return wfMessage( 'vipsscaler-invalid-file' )->text();
+			return wfMessage( 'thumbro-invalid-file' )->text();
 		}
 		$file = MediaWikiServices::getInstance()->getRepoGroup()->findFile( $title );
 		if ( !$file || !$file->exists() ) {
-			return wfMessage( 'vipsscaler-invalid-file' )->text();
+			return wfMessage( 'thumbro-invalid-file' )->text();
 		}
 
 		// Looks sensible enough.
@@ -314,7 +309,7 @@ class SpecialVipsTest extends SpecialPage {
 		$title = Title::newFromText( $allData['File'], NS_FILE );
 		$file = MediaWikiServices::getInstance()->getRepoGroup()->findFile( $title );
 		if ( $input <= 0 || $input >= $file->getWidth() ) {
-			return wfMessage( 'vipsscaler-invalid-width' )->text();
+			return wfMessage( 'thumbro-invalid-width' )->text();
 		}
 		return true;
 	}
@@ -327,7 +322,7 @@ class SpecialVipsTest extends SpecialPage {
 	/*
 	public static function validateSharpen( $input, $allData ) {
 		if ( $input >= 5.0 || $input < 0.0 ) {
-			return wfMessage( 'vipsscaler-invalid-sharpen' )->text();
+			return wfMessage( 'thumbro-invalid-sharpen' )->text();
 		}
 		return true;
 	}
@@ -349,13 +344,13 @@ class SpecialVipsTest extends SpecialPage {
 		// Validate title and file existance
 		$title = Title::newFromText( $request->getText( 'thumb' ), NS_FILE );
 		if ( $title === null ) {
-			$this->streamError( 404, "VipsScaler: invalid title\n" );
+			$this->streamError( 404, "Thumbro: invalid title\n" );
 			return;
 		}
 		$services = MediaWikiServices::getInstance();
 		$file = $services->getRepoGroup()->findFile( $title );
 		if ( !$file || !$file->exists() ) {
-			$this->streamError( 404, "VipsScaler: file not found\n" );
+			$this->streamError( 404, "Thumbro: file not found\n" );
 			return;
 		}
 
@@ -363,18 +358,19 @@ class SpecialVipsTest extends SpecialPage {
 		$handler = $file->getHandler();
 		$params = [ 'width' => $request->getInt( 'width' ) ];
 		if ( !$handler->normaliseParams( $file, $params ) ) {
-			$this->streamError( 500, "VipsScaler: invalid parameters\n" );
+			$this->streamError( 500, "Thumbro: invalid parameters\n" );
 			return;
 		}
 
 		$config = $this->getConfig();
-		$vipsTestExpiry = $config->get( 'VipsTestExpiry' );
-		$vipsConfig = $config->get( 'VipsConfig' );
+		$thumbroTestExpiry = $config->get( 'ThumbroTestExpiry' );
+		$thumbroOptions = $config->get( 'ThumbroOptions' );
+		$thumbroLibraries = $config->get( 'ThumbroLibraries' );
 
 		// Get the thumbnail
 		// No remote scaler, need to do it ourselves.
 		// Emulate the BitmapHandlerTransform hook
-		$tmpFile = VipsthumbnailCommand::makeTemp( $file->getExtension() );
+		$tmpFile = ShellCommand::makeTemp( $file->getExtension() );
 		$tmpFile->bind( $this );
 		$dstPath = $tmpFile->getPath();
 		$dstUrl = '';
@@ -403,9 +399,12 @@ class SpecialVipsTest extends SpecialPage {
 		];
 
 		$options = [];
-		if ( isset( $vipsConfig[$mimeType] ) && isset( $vipsConfig[$mimeType]['outputOptions'] ) ) {
-			$options['outputOptions'] = $vipsConfig[$mimeType]['outputOptions'];
+		if ( isset( $thumbroOptions[$mimeType] ) && isset( $thumbroOptions[$mimeType]['outputOptions'] ) ) {
+			$options['outputOptions'] = $thumbroOptions[$mimeType]['outputOptions'];
 		}
+
+		$library = $thumbroOptions[$mimeType]['library'];
+		$options['command'] = $thumbroLibraries[$library]['command'] ?? 'libvips';
 
 		/*
 		if ( $request->getBool( 'bilinear' ) ) {
@@ -422,13 +421,13 @@ class SpecialVipsTest extends SpecialPage {
 
 		// Call the hook
 		/** @var MediaTransformOutput $mto */
-		VipsScaler::doTransform( $handler, $file, $scalerParams, $options, $mto );
+		Libvips::doTransform( $handler, $file, $scalerParams, $options, $mto );
 		if ( $mto && !$mto->isError() ) {
 			wfDebug( __METHOD__ . ": streaming thumbnail...\n" );
 			$this->getOutput()->disable();
 			StreamFile::stream( $dstPath, [
-				"Cache-Control: public, max-age=$vipsTestExpiry, s-maxage=$vipsTestExpiry",
-				'Expires: ' . gmdate( 'r ', time() + $vipsTestExpiry )
+				"Cache-Control: public, max-age=$thumbroTestExpiry, s-maxage=$thumbroTestExpiry",
+				'Expires: ' . gmdate( 'r ', time() + $thumbroTestExpiry )
 			] );
 		} else {
 			'@phan-var MediaTransformError $mto';

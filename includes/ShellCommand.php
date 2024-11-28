@@ -23,19 +23,19 @@
 
 declare( strict_types=1 );
 
-namespace MediaWiki\Extension\VipsScaler;
+namespace MediaWiki\Extension\Thumbro;
 
 use MediaWiki\MediaWikiServices;
 use MediaWiki\Shell\Shell;
 use TempFSFile;
 
 /**
- * Wrapper class around the vipsthumbnail command, useful to chain multiple commands
- * with intermediate .v files
+ * Wrapper class around the shell command, useful to chain multiple commands
+ * with intermediate files
  */
-class VipsthumbnailCommand {
+class ShellCommand {
 
-	/** Flag to indicate that the output file should be a temporary .v file */
+	/** Flag to indicate that the output file should be a temporary file */
 	public const TEMP_OUTPUT = true;
 
 	/** @var string */
@@ -51,32 +51,32 @@ class VipsthumbnailCommand {
 	protected $removeInput;
 
 	/** @var string */
-	protected $vipsthumbnail;
+	protected $command;
 
 	/** @var array */
 	protected $args;
 
+	protected $name;
+
 	/**
 	 * Constructor
-	 *
-	 * @param string $vipsthumbnail Path to binary
-	 * @param array $args Array or arguments
 	 */
-	public function __construct( string $vipsthumbnail, array $args ) {
-		$this->vipsthumbnail = $vipsthumbnail;
+	public function __construct( string $name, string $command, array $args ) {
+		$this->name = $name;
+		$this->command = $command;
 		$this->args = $args;
 	}
 
 	/**
 	 * Set the input and output file of this command
 	 *
-	 * @param string|VipsthumbnailCommand $input Input file name or an VipsthumbnailCommand object to use the
+	 * @param string|ShellCommand $input Input file name or an ShellCommand object to use the
 	 * output of that command
 	 * @param string $output Output file name or extension of the temporary file
 	 * @param bool $tempOutput Output to a temporary file
 	 */
 	public function setIO( $input, $output, $tempOutput = false ): void {
-		if ( $input instanceof VipsthumbnailCommand ) {
+		if ( $input instanceof ShellCommand ) {
 			$this->input = $input->getOutput();
 			$this->removeInput = true;
 		} else {
@@ -122,11 +122,11 @@ class VipsthumbnailCommand {
 	}
 
 	/**
-	 * Constructs the command line array for executing the vipsthumbnail command.
+	 * Constructs the command line array for executing the command.
 	 */
 	private function buildCommand(): array {
 		$cmd = [
-			$this->vipsthumbnail,
+			$this->command,
 			$this->input,
 		];
 		# Input arguments
@@ -138,12 +138,15 @@ class VipsthumbnailCommand {
 	}
 
 	/**
-	 * Call the vips binary with varargs and returns the return value.
+	 * Call the command and returns the return value.
 	 */
 	public function execute(): int {
 		$cmd = $this->buildCommand();
 
-		wfDebug( __METHOD__ . ': running Vips: "' . implode('" "', $cmd ) . '"\n' );
+		wfDebug( sprintf( '[Extension:Thumbro] Executing %s: "%s"\n',
+			$this->name,
+			implode('" "', $cmd )
+		) );
 
 		$result = Shell::command( $cmd )
 			->environment( [ 'IM_CONCURRENCY' => '1' ] )
@@ -171,6 +174,6 @@ class VipsthumbnailCommand {
 	 */
 	public static function makeTemp( string $extension ): TempFSFile {
 		$tmpFactory = MediaWikiServices::getInstance()->getTempFSFileFactory();
-		return $tmpFactory->newTempFSFile( 'vips_', $extension );
+		return $tmpFactory->newTempFSFile( 'thumbro_', $extension );
 	}
 }

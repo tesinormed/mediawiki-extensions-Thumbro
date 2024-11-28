@@ -23,11 +23,12 @@
 
 declare( strict_types=1 );
 
-namespace MediaWiki\Extension\VipsScaler;
+namespace MediaWiki\Extension\Thumbro\Libraries;
 
 use File;
 use MediaTransformOutput;
-use MediaWiki\Extension\VipsScaler\VipsthumbnailCommand;
+use MediaWiki\Extension\Thumbro\ShellCommand;
+use MediaWiki\Extension\Thumbro\Utils;
 use MediaWiki\Shell\Shell;
 use ThumbnailImage;
 use TransformationalImageHandler;
@@ -40,11 +41,11 @@ use TransformationalImageHandler;
  *
  * @author Bryan Tong Minh
  */
-class VipsScaler {
+class Libvips {
 	/**
 	 * Performs a transform with VIPS
 	 *
-	 * @see VipsScaler::onTransform
+	 * @see Libvips::onTransform
 	 */
 	public static function doTransform(
 		TransformationalImageHandler $handler,
@@ -53,19 +54,19 @@ class VipsScaler {
 		array $options,
 		?MediaTransformOutput &$mto
 	): bool {
-		wfDebug( __METHOD__ . ': scaling ' . $file->getName() . " using vips\n" );
+		wfDebug( "[Extension:Thumbro] Creating thumbnails for {$file->getName()} using libvips\n" );
 
-		$vipsthumbnailCommands = self::makeCommands( $params, $options );
-		if ( count( $vipsthumbnailCommands ) == 0 ) {
+		$commands = self::makeCommands( $params, $options );
+		if ( count( $commands ) == 0 ) {
 			return true;
 		}
 
 		// Execute the commands
-		/** @var VipsthumbnailCommand $command */
-		foreach ( $vipsthumbnailCommands as $i => $command ) {
+		/** @var ShellCommand $command */
+		foreach ( $commands as $i => $command ) {
 			$retval = $command->execute();
 			if ( $retval != 0 ) {
-				wfDebug( __METHOD__ . ": vipsthumbnail command failed!\n" );
+				wfDebug( "[Extension:Thumbro] libvips command failed!\n" );
 				$error = $command->getErrorString() . "\nError code: $retval";
 				$mto = $handler->getMediaTransformError( $params, $error );
 				return false;
@@ -74,7 +75,7 @@ class VipsScaler {
 
 		// Set comment
 		if ( !empty( $options['setcomment'] ) && !empty( $params['comment'] ) ) {
-			self::setEXIFComment( $params['dstPath'], $params['comment'] );
+			Utils::setEXIFComment( $params['dstPath'], $params['comment'] );
 		}
 
 		// Set the output variable
@@ -106,12 +107,9 @@ class VipsScaler {
 	}
 
 	public static function makeCommands( array $params, array $options ): array {
-		global $wgVipsthumbnailCommand;
-
 		$commands = [];
-
 		// Create thumbnail into the same file type
-		$baseCommand = new VipsthumbnailCommand( $wgVipsthumbnailCommand, [
+		$baseCommand = new ShellCommand( 'libvips', $options['command'], [
 			'size' => $params['physicalWidth'] . 'x' . $params['physicalHeight']
 		] );
 		$baseCommand->setIO( $params['srcPath'], $params['dstPath'] . self::makeOutputOptions( $options['outputOptions'] ?? [] ) );
@@ -119,62 +117,6 @@ class VipsScaler {
 		$commands[] = $baseCommand;
 
 		return $commands;
-	}
-
-	/**
-	 * Check the file and params against $wgVipsConfig
-	 */
-	public static function getHandlerOptions(
-		TransformationalImageHandler $handler,
-		File $file,
-		array $params
-	): ?array {
-		global $wgVipsConfig;
-
-		wfDebug( __METHOD__ . ": Checking Vips options\n" );
-
-		# Iterate over conditions
-		foreach ( $wgVipsConfig as $mimeType => $option ) {
-			if ( $mimeType !== $file->getMimeType() ) {
-				continue;
-			}
-
-			if ( !isset( $option['enabled'] ) || $option['enabled'] !== true ) {
-				continue;
-			}
-
-			if ( $file->isMultipage() ) {
-				// Multi-page files are not supported
-				continue;
-			}
-
-			$area = $handler->getImageArea( $file );
-
-			if ( isset( $condition['minArea'] ) && $area < $condition['minArea'] ) {
-				continue;
-			}
-			if ( isset( $condition['maxArea'] ) && $area >= $condition['maxArea'] ) {
-				continue;
-			}
-
-			# This condition passed
-			return $option;
-		}
-		# All conditions failed
-		return null;
-	}
-
-	/**
-	 * Sets a comment on a file using exiv2.
-	 * Requires $wgExiv2Command to be setup properly.
-	 *
-	 * @todo FIXME need to handle errors such as $wgExiv2Command not available
-	 */
-	public static function setEXIFComment( string $fileName, string $comment ): void {
-		global $wgExiv2Command;
-
-		Shell::command( $wgExiv2Command, 'mo', '-c', $comment, $fileName )
-			->execute();
 	}
 
 	/**

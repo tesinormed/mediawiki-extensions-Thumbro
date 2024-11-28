@@ -1,35 +1,36 @@
 {
-	"name": "VipsScaler",
+	"name": "Thumbro",
+	"version": "0.0.1",
 	"author": [
 		"[https://www.mediawiki.org/wiki/User:Alistair3149 Alistair3149]",
 		"Bryan Tong Minh"
 	],
-	"url": "https://www.mediawiki.org/wiki/Extension:VipsScaler",
-	"descriptionmsg": "vipsscaler-desc",
+	"url": "https://www.mediawiki.org/wiki/Extension:Thumbro",
+	"descriptionmsg": "thumbro-desc",
 	"license-name": "GPL-2.0-or-later",
 	"type": "media",
 	"requires": {
 		"MediaWiki": ">= 1.39.4"
 	},
 	"AutoloadNamespaces": {
-		"MediaWiki\\Extension\\VipsScaler\\": "includes/"
+		"MediaWiki\\Extension\\Thumbro\\": "includes/"
 	},
 	"SpecialPages": {
-		"VipsTest": "MediaWiki\\Extension\\VipsScaler\\SpecialVipsTest"
+		"ThumbroTest": "MediaWiki\\Extension\\Thumbro\\SpecialThumbroTest"
 	},
 	"GroupPermissions": {
 		"*": {
-			"vipsscaler-test": true
+			"thumbro-test": true
 		}
 	},
 	"AvailableRights": [
-		"vipsscaler-test"
+		"thumbro-test"
 	],
 	"MessagesDirs": {
-		"VipsScaler": "i18n"
+		"Thumbro": "i18n"
 	},
 	"ExtensionMessagesFiles": {
-		"VipsScalerAlias": "VipsScaler.alias.php"
+		"ThumbroAlias": "Thumbro.alias.php"
 	},
 	"Hooks": {
 		"BitmapHandlerTransform": "main",
@@ -38,53 +39,46 @@
 	},
 	"HookHandlers": {
 		"main": {
-			"class": "MediaWiki\\Extension\\VipsScaler\\Hooks"
+			"class": "MediaWiki\\Extension\\Thumbro\\Hooks",
+			"services": [
+				"ConfigFactory"
+			]
 		}
 	},
 	"ResourceModules": {
-		"ext.vipsscaler": {
+		"ext.thumbro": {
 			"scripts": [
-				"modules/ext.vipsScaler/ext.vipsScaler.js"
+				"modules/jquery.ucompare/js/jquery.ucompare.js",
+				"modules/ext.thumbro/ext.thumbro.js"
 			],
 			"styles": [
-				"modules/ext.vipsScaler/ext.vipsScaler.css"
+				"modules/jquery.ucompare/css/jquery.ucompare.css",
+				"modules/ext.thumbro/ext.thumbro.css"
 			],
 			"messages": [
-				"vipsscaler-show-both",
-				"vipsscaler-show-default",
-				"vipsscaler-show-vips"
-			],
-			"dependencies": [
-				"jquery.ucompare"
-			]
-		},
-		"jquery.ucompare": {
-			"scripts": [
-				"modules/jquery.ucompare/js/jquery.ucompare.js"
-			],
-			"styles": [
-				"modules/jquery.ucompare/css/jquery.ucompare.css"
+				"thumbro-show-both",
+				"thumbro-show-default",
+				"thumbro-show-vips"
 			]
 		}
 	},
 	"ResourceFileModulePaths": {
 		"localBasePath": "",
-		"remoteExtPath": "VipsScaler"
+		"remoteExtPath": "Thumbro"
 	},
 	"config": {
-		"VipsExposeTestPage": {
-			"value": false
+		"ThumbroLibraries" : {
+			"value": {
+				"libvips": {
+					"command": "/usr/bin/vipsthumbnail"
+				}
+			}
 		},
-		"VipsthumbnailCommand": {
-			"value": "/usr/bin/vipsthumbnail"
-		},
-		"VipsTestExpiry": {
-			"value": 3600
-		},
-		"VipsConfig": {
+		"ThumbroOptions": {
 			"value": {
 				"image/jpeg": {
 					"enabled": true,
+					"library": "libvips",
 					"outputOptions": {
 						"strip": "true",
 						"Q": "80"
@@ -92,13 +86,23 @@
 				},
 				"image/png": {
 					"enabled": true,
+					"library": "libvips",
 					"outputOptions": {
 						"strip": "true",
 						"filter": "VIPS_FOREIGN_PNG_FILTER_ALL"
 					}
 				}
 			}
+		},
+		"ThumbroExposeTestPage": {
+			"value": false
+		},
+		"ThumbroTestExpiry": {
+			"value": 3600
 		}
+	},
+	"ConfigRegistry": {
+		"thumbro": "GlobalVarConfig::newInstance"
 	},
 	"manifest_version": 2
 }

@@ -2,7 +2,7 @@
 	'use strict';
 
 	function switchThumbs() {
-		var e = $( '#mw-vipstest-thumbnails' ),
+		var e = $( '#mw-thumbrotest-thumbnails' ),
 			mask = e.children( '.uc-mask' ),
 			caption = e.children( '.uc-caption' ),
 			width = e.width(),
@@ -19,7 +19,7 @@
 	}
 
 	$( function () {
-		if ( !document.getElementById( 'mw-vipstest-thumbnails' ) ) {
+		if ( !document.getElementById( 'mw-thumbrotest-thumbnails' ) ) {
 			return;
 		}
 		// options are detailed in upstream documentation available at
@@ -30,7 +30,7 @@
 		// - leftgap: the gap to the left of the image
 		// - rightgap: the gap to the right of the image
 		// - defaultgap: the default gap shown before any interactions
-		$( '#mw-vipstest-thumbnails' ).ucompare( {
+		$( '#mw-thumbrotest-thumbnails' ).ucompare( {
 			defaultgap: 50,
 			leftgap: 0,
 			rightgap: 0,
@@ -40,11 +40,11 @@
 
 		// Also add a click handler to instantly switch beetween pics
 		// This can be done by clicking the thumbnail or using a checkbox
-		$( '#mw-vipstest-thumbs-switch' ).on(
+		$( '#mw-thumbrotest-thumbs-switch' ).on(
 			'click',
 			function () { switchThumbs(); }
 		);
-		$( '#mw-vipstest-thumbnails' ).on(
+		$( '#mw-thumbrotest-thumbnails' ).on(
 			'click',
 			function () { switchThumbs(); }
 		);

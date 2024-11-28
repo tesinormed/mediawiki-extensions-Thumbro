@@ -1,13 +1,16 @@
 <?php
 
-namespace MediaWiki\Extension\VipsScaler;
+namespace MediaWiki\Extension\Thumbro;
 
+use Config;
+use ConfigFactory;
 use File;
 use MediaTransformOutput;
+use MediaWiki\Extension\Thumbro\Libraries\Libvips;
 use MediaWiki\Hook\BitmapHandlerCheckImageAreaHook;
 use MediaWiki\Hook\BitmapHandlerTransformHook;
 use MediaWiki\Hook\SoftwareInfoHook;
-use MediaWiki\Shell\Shell;
+use MediaWiki\MainConfigNames;
 use TransformationalImageHandler;
 
 class Hooks implements
@@ -15,9 +18,15 @@ class Hooks implements
 	BitmapHandlerCheckImageAreaHook,
 	SoftwareInfoHook
 {
+	private Config $config;
+
+	public function __construct( ConfigFactory $configFactory ) {
+		$this->config = $configFactory->makeConfig( 'thumbro' );
+	}
+
 	/**
-	 * Hook to BitmapHandlerTransform. Transforms the file using VIPS if it
-	 * matches a condition in $wgVipsConditions
+	 * Hook to BitmapHandlerTransform. Transforms using the conditions
+	 * Set in $wgThumbroOptions
 	 *
 	 * @param TransformationalImageHandler $handler
 	 * @param File $file
@@ -26,22 +35,19 @@ class Hooks implements
 	 * @return bool
 	 */
 	public function onBitmapHandlerTransform( $handler, $file, &$params, &$mto ) {
-		list( $major, $minor ) = File::splitMime( $file->getMimeType() );
-		if ( $major !== 'image' ) {
+		$config = $this->config;
+		$options = Utils::getOptions( $handler, $file, $config );
+		if ( $options === null ) {
 			return true;
 		}
 
-		$options = VipsScaler::getHandlerOptions( $handler, $file, $params );
-		if ( !$options ) {
-			wfDebug( "...\n" );
-			return true;
-		}
-		return VipsScaler::doTransform( $handler, $file, $params, $options, $mto );
+		/** @todo Add logic to use other libaries */
+		return Libvips::doTransform( $handler, $file, $params, $options, $mto );
 	}
 
 	/**
 	 * Hook to BitmapHandlerCheckImageArea. Will set $result to true if the
-	 * file will by handled by VipsScaler.
+	 * file will by handled by Thumbro.
 	 *
 	 * @param File $file
 	 * @param array &$params
@@ -49,10 +55,12 @@ class Hooks implements
 	 * @return bool
 	 */
 	public function onBitmapHandlerCheckImageArea( $file, &$params, &$result ) {
-		global $wgMaxImageArea;
+		$config = $this->config;
+		$maxImageArea = $config->get( MainConfigNames::MaxImageArea );
+
 		/** @phan-suppress-next-line PhanTypeMismatchArgumentSuperType ImageHandler vs. MediaHandler */
-		if ( VipsScaler::getHandlerOptions( $file->getHandler(), $file, $params ) !== false ) {
-			wfDebug( __METHOD__ . ": Overriding $wgMaxImageArea\n" );
+		if ( Utils::getOptions( $file->getHandler(), $file, $config ) !== false ) {
+			wfDebug( "[Extension:Thumbro] Overriding wgMaxImageArea: $maxImageArea\n" );
 			$result = true;
 			return false;
 		}
@@ -66,7 +74,7 @@ class Hooks implements
 	 * @param array &$software Array of wikitext and version numbers
 	 */
 	public function onSoftwareInfo( &$software ) {
-		$vipsVersion = VipsScaler::getSoftwareVersion();
+		$vipsVersion = Libvips::getSoftwareVersion();
 		if ( $vipsVersion ) {
 			$software[ '[https://www.libvips.org libvips]' ] = $vipsVersion;
 		}
