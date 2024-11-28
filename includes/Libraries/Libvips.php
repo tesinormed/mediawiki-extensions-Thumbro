@@ -44,8 +44,6 @@ use TransformationalImageHandler;
 class Libvips {
 	/**
 	 * Performs a transform with VIPS
-	 *
-	 * @see Libvips::onTransform
 	 */
 	public static function doTransform(
 		TransformationalImageHandler $handler,
