@@ -3,7 +3,7 @@
 		"authors": []
 	},
 	"thumbrotest": "Thumbro test page",
-	"thumbro-desc": "Improve ane expand thumbnailing in MediaWiki",
+	"thumbro-desc": "Improve and expand thumbnailing in MediaWiki",
 	"thumbro-invalid-file": "Could not process requested file. Check that it exists on this wiki.",
 	"thumbro-invalid-width": "Thumbnail width should be larger than zero and not larger than file width.",
 	"thumbro-invalid-sharpen": "Sharpening amount should be a number larger than zero and smaller than five.",
