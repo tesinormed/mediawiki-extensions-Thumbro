@@ -398,13 +398,11 @@ class SpecialThumbroTest extends SpecialPage {
 			'interlace' => $request->getBool( 'interlace' ),
 		];
 
-		$options = [];
-		if ( isset( $thumbroOptions[$mimeType] ) && isset( $thumbroOptions[$mimeType]['outputOptions'] ) ) {
-			$options['outputOptions'] = $thumbroOptions[$mimeType]['outputOptions'];
-		}
-
 		$library = $thumbroOptions[$mimeType]['library'] ?? 'libvips';
-		$options['command'] = $thumbroLibraries[$library]['command'];
+		$options = [
+			'command' => $thumbroLibraries[$library]['command'],
+			'outputOptions' => $thumbroOptions[$mimeType]['outputOptions'] ?? []
+		];
 
 		/*
 		if ( $request->getBool( 'bilinear' ) ) {
