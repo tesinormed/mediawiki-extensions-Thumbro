@@ -48,7 +48,8 @@ Key | Description
 :--- | :--- 
 `enabled` | Enable or disable Thumbro for the selected file type
 `library` | Corresponds to `$wgThumbroLibraries`, currently only `libvips` is supported
-`outputOptions` | Corresponds to the output options in [`VipsForeignSave`](https://www.libvips.org/API/current/VipsForeignSave.html)
+`inputOptions` | Corresponds to the input/load options in [`VipsForeignSave`](https://www.libvips.org/API/current/VipsForeignSave.html)
+`outputOptions` | Corresponds to the output/save options in [`VipsForeignSave`](https://www.libvips.org/API/current/VipsForeignSave.html)
 
 Default:
 ```php
@@ -81,4 +82,4 @@ Name | Description | Values | Default
 
 ## Requirements
 * [MediaWiki](https://www.mediawiki.org) 1.39.4 or later
-* [libvips](https://www.libvips.org)
+* [libvips](https://www.libvips.org) 8.14 or later (older versions might work but they are untested)
