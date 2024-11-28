@@ -5,6 +5,11 @@
 
 Thumbro is an in-development MediaWiki extension used to expand the thumbnail engine in MediaWiki. It is unstable for production use. It is forked from [Extension:VipsScaler](https://www.mediawiki.org/wiki/Extension:VipsScaler). Currently, it only supports [libvips](https://www.libvips.org).
 
+## Features
+- Use libvips to render thumbnails instead of ImageMagick and GD
+- Allow custom output options for libvips
+- Render WebP thumbnails by default for jpeg, png, webp
+
 ## Installation
 1. Install libvips
 2. [Download](https://github.com/StarCitizenTools/mediawiki-extensions-Thumbro/archive/main.zip) place the file(s) in a directory called `Thumbro` in your `extensions/` folder.
