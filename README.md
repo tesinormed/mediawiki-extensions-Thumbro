@@ -57,21 +57,40 @@ Key | Description
 Default:
 ```php
 $wgThumbroOptions = [
-	"value" => [
-		"image/jpeg" => [
-			"enabled" => true,
-			"library" => "libvips",
-			"outputOptions" => [
-				"strip": "true",
-				"Q": "80"
+	'value' => [
+		'image/gif' => [
+			'enabled' => true,
+			'library' => 'libvips',
+			'inputOptions' => [
+				'n' => '-1'
 			]
 		],
-		"image/png": => [
-			"enabled" => true,
-			"library" => "libvips",
-			"outputOptions" => [
-				"strip": "true",
-				"filter": "VIPS_FOREIGN_PNG_FILTER_ALL"
+		'image/jpeg' => [
+			'enabled' => true,
+			'library' => 'libvips',
+			'inputOptions' => [],
+			'outputOptions' => [
+				'strip': 'true',
+				'Q': '80'
+			]
+		],
+		'image/png': => [
+			'enabled' => true,
+			'library' => 'libvips',
+			'inputOptions' => [],
+			'outputOptions' => [
+				'strip' => 'true',
+				'filter' => 'VIPS_FOREIGN_PNG_FILTER_ALL'
+			]
+		],
+		'image/webp' => [
+			'enabled' => true,
+			'library' => 'libvips',
+			'inputOptions' => [],
+			'outputOptions' => [
+				'strip' => 'true',
+				'Q' => '90',
+				'smart_subsample' => 'true'
 			]
 		]
 	]
