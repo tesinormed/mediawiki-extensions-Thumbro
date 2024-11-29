@@ -367,16 +367,19 @@ class SpecialThumbroTest extends SpecialPage {
 		$thumbroOptions = $config->get( 'ThumbroOptions' );
 		$thumbroLibraries = $config->get( 'ThumbroLibraries' );
 
+		$inputMimeType = $file->getMimeType();
+		// Respect MediaHandler thumbType
+		[ $extension, $mimeType ] = $handler->getThumbType( $file->getExtension(), $inputMimeType );
+
 		// Get the thumbnail
 		// No remote scaler, need to do it ourselves.
 		// Emulate the BitmapHandlerTransform hook
-		$tmpFile = ShellCommand::makeTemp( $file->getExtension() );
+		$tmpFile = ShellCommand::makeTemp( $extension );
 		$tmpFile->bind( $this );
 		$dstPath = $tmpFile->getPath();
 		$dstUrl = '';
 		wfDebug( __METHOD__ . ": Creating vips thumbnail at $dstPath" );
 
-		$mimeType = $file->getMimeType();
 		$scalerParams = [
 			// The size to which the image will be resized
 			'physicalWidth' => $params['physicalWidth'],
@@ -401,6 +404,7 @@ class SpecialThumbroTest extends SpecialPage {
 		$library = $thumbroOptions[$mimeType]['library'] ?? 'libvips';
 		$options = [
 			'command' => $thumbroLibraries[$library]['command'],
+			'inputOptions' => $thumbroOptions[$inputMimeType]['inputOptions'] ?? [],
 			'outputOptions' => $thumbroOptions[$mimeType]['outputOptions'] ?? []
 		];
 
