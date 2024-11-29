@@ -12,8 +12,10 @@
 }
 
 .uc-mask {
-	/* Remove annoying shadow */
-	-webkit-box-shadow: none;
-	-moz-box-shadow: none;
 	box-shadow: none;
+}
+
+#mw-thumbrotest-thumbnails {
+	max-width: 100%;
+	overflow: auto !important;
 }

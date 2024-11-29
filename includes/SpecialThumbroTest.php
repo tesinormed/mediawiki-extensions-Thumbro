@@ -28,9 +28,8 @@ use HTMLIntField;
 use HTMLTextField;
 use MediaTransformOutput;
 use MediaWiki\Extension\Thumbro\Libraries\Libvips;
+use MediaWiki\MainConfigNames;
 use MediaWiki\MediaWikiServices;
-use OOUI\CheckboxInputWidget;
-use OOUI\FieldLayout;
 use OOUI\FieldsetLayout;
 use OOUI\HtmlSnippet;
 use OOUI\LabelWidget;
@@ -47,8 +46,14 @@ use User;
  * @author Bryan Tong Minh
  */
 class SpecialThumbroTest extends SpecialPage {
+
+	private $secret;
+
 	public function __construct() {
 		parent::__construct( 'ThumbroTest', 'thumbro-test' );
+		$this->config = $this->getConfig();
+		$this->secret = $this->config->get( MainConfigNames::SecretKey );
+		$this->services = MediaWikiServices::getInstance();
 	}
 
 	/**
@@ -62,14 +67,14 @@ class SpecialThumbroTest extends SpecialPage {
 	 * @inheritDoc
 	 */
 	public function userCanExecute( User $user ): bool {
-		return $this->getConfig()->get( 'ThumbroExposeTestPage' ) && parent::userCanExecute( $user );
+		return $this->config->get( 'ThumbroExposeTestPage' ) && parent::userCanExecute( $user );
 	}
 
 	/**
 	 * @inheritDoc
 	 */
 	public function displayRestrictionError(): void {
-		if ( !$this->getConfig()->get( 'ThumbroExposeTestPage' ) ) {
+		if ( !$this->config->get( 'ThumbroExposeTestPage' ) ) {
 			throw new PermissionsError(
 				null,
 				[ 'querypage-disabled' ]
@@ -86,7 +91,10 @@ class SpecialThumbroTest extends SpecialPage {
 		$request = $this->getRequest();
 		$this->setHeaders();
 
-		if ( !$this->userCanExecute( $this->getUser() ) ) {
+		$isInternalRequest = $request->getHeader( 'X-Thumbro-Secret' ) === $this->secret;
+		$isUserAllowed = $this->userCanExecute( $this->getUser() );
+
+		if ( !$isUserAllowed && !$isInternalRequest ) {
 			$this->displayRestrictionError();
 		}
 
@@ -113,7 +121,7 @@ class SpecialThumbroTest extends SpecialPage {
 			$this->getOutput()->addWikiMsg( 'thumbro-invalid-file' );
 			return;
 		}
-		$services = MediaWikiServices::getInstance();
+		$services = $this->services;
 		$file = $services->getRepoGroup()->findFile( $title );
 		if ( !$file || !$file->exists() ) {
 			$this->getOutput()->addWikiMsg( 'thumbro-invalid-file' );
@@ -145,13 +153,13 @@ class SpecialThumbroTest extends SpecialPage {
 		}
 
 		// Check if we actually scaled the file
-		$normalThumbUrl = $thumb->getUrl();
-		if ( $services->getUrlUtils()->expand( $normalThumbUrl ) == $file->getFullUrl() ) {
+		$normalThumbUrl = $services->getUrlUtils()->expand( $thumb->getUrl() );
+		if ( $normalThumbUrl === $file->getFullUrl() ) {
 			$this->getOutput()->addWikiMsg( 'thumbro-thumb-notscaled' );
 		}
 
-		// Make url to the vips thumbnail
-		$vipsThumbUrl = $this->getPageTitle()->getLocalUrl( $vipsUrlOptions );
+		// Make url to the Thumbro thumbnail
+		$thumbroThumbUrl = $this->getPageTitle()->getFullUrl( $vipsUrlOptions );
 
 		// HTML for the thumbnails
 		$thumbs = new HtmlSnippet( Html::rawElement( 'div', [ 'id' => 'mw-thumbrotest-thumbnails' ],
@@ -160,7 +168,7 @@ class SpecialThumbroTest extends SpecialPage {
 				'alt' => $this->msg( 'thumbro-default-thumb' )->text(),
 			] ) . ' ' .
 			Html::element( 'img', [
-				'src' => $vipsThumbUrl,
+				'src' => $thumbroThumbUrl,
 				'alt' => $this->msg( 'thumbro-vips-thumb' )->text(),
 			] )
 		) );
@@ -184,8 +192,47 @@ class SpecialThumbroTest extends SpecialPage {
 			] )
 		);
 
+		$normalThumbUrl = str_replace( 'localhost', '172.18.0.4', $normalThumbUrl );
+		$thumbroThumbUrl = str_replace( 'localhost', '172.18.0.4', $thumbroThumbUrl );
+
+		$normalThumbData = $this->getImageInfo( $normalThumbUrl );
+		$thumbroThumbData = $this->getImageInfo( $thumbroThumbUrl );
+
+		$this->getOutput()->addHTML(
+			'<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">' .
+				'<pre>' . print_r( $normalThumbData, true ) . '</pre>' .
+				'<pre>' . print_r( $thumbroThumbData, true ) . '</pre>' .
+			'</div>'
+		);
 		// Finally output all of the above
 		$this->getOutput()->addModules( [ 'ext.thumbro' ] );
+	}
+
+	private function getImageInfo( $imageUrl ) {
+		$httpRequestFactory = $this->services->getHttpRequestFactory();
+		$req = $httpRequestFactory->create( $imageUrl, [], __METHOD__ );
+		$req->setHeader( 'X-Thumbro-Secret', $this->secret );
+		$result = $req->execute();
+		if ( !$result->isGood() ) {
+			return [];
+		}
+
+		$fileSize = $req->getResponseHeader( 'content-length' );
+		$mimeType = $req->getResponseHeader( 'content-type' );
+	
+		return [
+			'type' => $mimeType,
+			'size' => $this->humanFileSize( $fileSize ) ?? ''
+		];
+	}
+
+	private function humanFileSize( int $bytes, ?int $decimals = 2 ): string {
+		$size = [ 'B', 'KB', 'MB', 'GB', 'TB', 'PB' ];
+		$factor = floor( ( strlen( $bytes ) - 1 ) / 3 );
+		return sprintf( "%.{$decimals}f %s",
+			$bytes / ( 1000 ** $factor ),
+			$size[$factor]
+		);
 	}
 
 	/**
@@ -334,7 +381,7 @@ class SpecialThumbroTest extends SpecialPage {
 			$this->streamError( 404, "Thumbro: invalid title" );
 			return;
 		}
-		$services = MediaWikiServices::getInstance();
+		$services = $this->services;
 		$file = $services->getRepoGroup()->findFile( $title );
 		if ( !$file || !$file->exists() ) {
 			$this->streamError( 404, "Thumbro: file not found" );
@@ -349,7 +396,7 @@ class SpecialThumbroTest extends SpecialPage {
 			return;
 		}
 
-		$config = $this->getConfig();
+		$config = $this->config;
 		$thumbroTestExpiry = $config->get( 'ThumbroTestExpiry' );
 		$thumbroOptions = $config->get( 'ThumbroOptions' );
 		$thumbroLibraries = $config->get( 'ThumbroLibraries' );
