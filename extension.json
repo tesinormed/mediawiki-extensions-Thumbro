@@ -19,7 +19,7 @@
 		"ThumbroTest": "MediaWiki\\Extension\\Thumbro\\SpecialThumbroTest"
 	},
 	"GroupPermissions": {
-		"*": {
+		"sysop": {
 			"thumbro-test": true
 		}
 	},
