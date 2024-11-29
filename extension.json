@@ -32,6 +32,9 @@
 	"ExtensionMessagesFiles": {
 		"ThumbroAlias": "Thumbro.alias.php"
 	},
+	"ExtensionFunctions": [
+		"MediaWiki\\Extension\\Thumbro\\Hooks::initThumbro"
+	],
 	"Hooks": {
 		"BitmapHandlerTransform": "main",
 		"BitmapHandlerCheckImageArea": "main",
@@ -44,12 +47,6 @@
 				"ConfigFactory"
 			]
 		}
-	},
-	"MediaHandlers": {
-		"image/gif": "MediaWiki\\Extension\\Thumbro\\MediaHandlers\\ThumbroGIFHandler",
-		"image/jpeg": "MediaWiki\\Extension\\Thumbro\\MediaHandlers\\ThumbroJpegHandler",
-		"image/png": "MediaWiki\\Extension\\Thumbro\\MediaHandlers\\ThumbroPNGHandler",
-		"image/webp": "MediaWiki\\Extension\\Thumbro\\MediaHandlers\\ThumbroWebPHandler"
 	},
 	"ResourceModules": {
 		"ext.thumbro": {
@@ -73,6 +70,9 @@
 		"remoteExtPath": "Thumbro"
 	},
 	"config": {
+		"ThumbroEnabled": {
+			"value": true
+		},
 		"ThumbroLibraries" : {
 			"value": {
 				"libvips": {

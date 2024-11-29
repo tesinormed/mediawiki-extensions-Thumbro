@@ -96,11 +96,28 @@ $wgThumbroOptions = [
 	]
 ];
 ```
-### Special:ThumbroTest
+### Testing options
 Name | Description | Values | Default
 :--- | :--- | :--- | :---
+`$wgThumbroEnabled` | Set to `false` to disable Thumbro throughout the wiki excluding the Special:ThumbroTest page | `true` - enable; `false` - disable | `true`
 `$wgThumbroExposeTestPage` | Enable Special:ThumbroTest on the wiki | `true` - enable; `false` - disable | `false`
 `$wgThumbroTestExpiry` | Control the cache age for the test image streamed to Special:ThumbroTest | integer | `3600`
+
+## Testing Thumbro thumbnails
+Thumbro comes with a special page that can be used to compare thumbnails before and after Thumbro.
+First you have to enable the page with this config:
+```php
+// Enable the Special:ThumbroTest page
+$wgThumbroExposeTestPage = true;
+```
+
+To make sure the before thumbnail is untouched by Thumbro, you can either disable Thumbro site-wide:
+```php
+// Disable Thumbro site-wide
+$wgThumbroEnabled = false;
+```
+
+Or disable the output file format you wanted to test under `$wgThumbroOptions`.
 
 ## Requirements
 * [MediaWiki](https://www.mediawiki.org) 1.39.4 or later

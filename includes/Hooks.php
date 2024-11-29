@@ -7,6 +7,10 @@ use ConfigFactory;
 use File;
 use MediaTransformOutput;
 use MediaWiki\Extension\Thumbro\Libraries\Libvips;
+use MediaWiki\Extension\Thumbro\MediaHandlers\ThumbroGIFHandler;
+use MediaWiki\Extension\Thumbro\MediaHandlers\ThumbroJpegHandler;
+use MediaWiki\Extension\Thumbro\MediaHandlers\ThumbroPNGHandler;
+use MediaWiki\Extension\Thumbro\MediaHandlers\ThumbroWebPHandler;
 use MediaWiki\Hook\BitmapHandlerCheckImageAreaHook;
 use MediaWiki\Hook\BitmapHandlerTransformHook;
 use MediaWiki\Hook\SoftwareInfoHook;
@@ -25,6 +29,21 @@ class Hooks implements
 		$this->config = $configFactory->makeConfig( 'thumbro' );
 	}
 
+	public static function initThumbro(): void {
+		global $wgThumbroEnabled;
+
+		// Thumbro is not enabled, do not add any MediaHandlers
+		if ( $wgThumbroEnabled !== true ) {
+			return;
+		}
+
+		// Attach WebP handlers
+		$wgMediaHandlers['image/gif'] = ThumbroGIFHandler::class;
+		$wgMediaHandlers['image/jpeg'] = ThumbroJpegHandler::class;
+		$wgMediaHandlers['image/png'] = ThumbroPNGHandler::class;
+		$wgMediaHandlers['image/webp'] = ThumbroWebPHandler::class;
+	}
+
 	/**
 	 * Hook to BitmapHandlerTransform. Transforms using the conditions
 	 * Set in $wgThumbroOptions
@@ -41,6 +60,12 @@ class Hooks implements
 		}
 
 		$config = $this->config;
+
+		// Abort all transformations when Thumbro is not enabled
+		if ( $config->get( 'ThumbroEnabled') !== true ) {
+			return true;
+		}
+
 		$options = Utils::getOptions( $handler, $file, $config );
 		if ( $options === null ) {
 			return true;
