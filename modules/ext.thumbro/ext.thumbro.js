@@ -39,11 +39,6 @@
 		} );
 
 		// Also add a click handler to instantly switch beetween pics
-		// This can be done by clicking the thumbnail or using a checkbox
-		$( '#mw-thumbrotest-thumbs-switch' ).on(
-			'click',
-			function () { switchThumbs(); }
-		);
 		$( '#mw-thumbrotest-thumbnails' ).on(
 			'click',
 			function () { switchThumbs(); }

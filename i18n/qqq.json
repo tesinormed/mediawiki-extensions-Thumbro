@@ -21,7 +21,6 @@
 	"thumbro-form-submit": "Special:ThumbroTest form: submit button text. The page will then attempt to generate a thumbnail with the given parameters.",
 	"thumbro-thumbs-legend": "Used as header for the result on [[wikipedia:Special:ThumbroTest|Special:ThumbroTest]]",
 	"thumbro-thumbs-help": "Used as help text for the result on [[wikipedia:Special:ThumbroTest|Special:ThumbroTest]]",
-	"thumbro-thumbs-switch-label": "Used as label for a checkbox shown in the result on [[wikipedia:Special:ThumbroTest|Special:ThumbroTest]]",
 	"thumbro-default-thumb": "Special:ThumbroTest: caption of the default thumbnail",
 	"thumbro-vips-thumb": "Special:ThumbroTest: caption of the libvips thumbnail",
 	"thumbro-show-both": "Special:ThumbroTest: button to show both thumbnails",

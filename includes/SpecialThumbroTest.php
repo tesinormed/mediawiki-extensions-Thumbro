@@ -170,19 +170,6 @@ class SpecialThumbroTest extends SpecialPage {
 			new LabelWidget( [ 'label' => $this->msg( 'thumbro-thumbs-help' )->text() ] )
 		];
 
-		// A checkbox to easily alternate between both views:
-		$form[] = new FieldLayout(
-				new CheckboxInputWidget( [
-					'name' => 'mw-thumbrotest-thumbs-switch',
-					'inputId' => 'mw-thumbrotest-thumbs-switch',
-				] ),
-				[
-					'label' => $this->msg( 'thumbro-thumbs-switch-label' )->text(),
-					'align' => 'inline',
-					'infusable' => true,
-				]
-			);
-
 		$fieldset = new FieldsetLayout( [
 			'label' => $this->msg( 'thumbro-thumbs-legend' )->text(),
 			'items' => $form,
