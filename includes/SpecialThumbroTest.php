@@ -106,6 +106,7 @@ class SpecialThumbroTest extends SpecialPage {
 	}
 
 	/**
+	 * Render the generated thumbnails panel
 	 */
 	protected function showThumbnails(): void {
 		$request = $this->getRequest();
@@ -192,12 +193,14 @@ class SpecialThumbroTest extends SpecialPage {
 			] )
 		);
 
-		$normalThumbUrl = str_replace( 'localhost', '172.18.0.4', $normalThumbUrl );
-		$thumbroThumbUrl = str_replace( 'localhost', '172.18.0.4', $thumbroThumbUrl );
+		// Debug stuff to work around Docker localhost HTTP request issue
+		// $normalThumbUrl = str_replace( 'localhost', '172.18.0.4', $normalThumbUrl );
+		// $thumbroThumbUrl = str_replace( 'localhost', '172.18.0.4', $thumbroThumbUrl );
 
 		$normalThumbData = $this->getImageInfo( $normalThumbUrl );
 		$thumbroThumbData = $this->getImageInfo( $thumbroThumbUrl );
 
+		// PLaceholder UI, will update later
 		$this->getOutput()->addHTML(
 			'<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">' .
 				'<pre>' . print_r( $normalThumbData, true ) . '</pre>' .
@@ -208,7 +211,10 @@ class SpecialThumbroTest extends SpecialPage {
 		$this->getOutput()->addModules( [ 'ext.thumbro' ] );
 	}
 
-	private function getImageInfo( $imageUrl ) {
+	/**
+	 * Return an array of useful information about a thumbnail
+	 */
+	private function getImageInfo( string $imageUrl ): array {
 		$httpRequestFactory = $this->services->getHttpRequestFactory();
 		$req = $httpRequestFactory->create( $imageUrl, [], __METHOD__ );
 		$req->setHeader( 'X-Thumbro-Secret', $this->secret );
@@ -226,6 +232,9 @@ class SpecialThumbroTest extends SpecialPage {
 		];
 	}
 
+	/**
+	 * Format bytes into human-readable file size
+	 */
 	private function humanFileSize( int $bytes, ?int $decimals = 2 ): string {
 		$size = [ 'B', 'KB', 'MB', 'GB', 'TB', 'PB' ];
 		$factor = floor( ( strlen( $bytes ) - 1 ) / 3 );
@@ -236,7 +245,7 @@ class SpecialThumbroTest extends SpecialPage {
 	}
 
 	/**
-	 * TODO
+	 * Special:ThumbroTest form HTML
 	 */
 	protected function showForm(): void {
 		$form = HTMLForm::factory( 'ooui', $this->getFormFields(), $this->getContext() );
@@ -256,7 +265,7 @@ class SpecialThumbroTest extends SpecialPage {
 	}
 
 	/**
-	 * [[Special:ThumbroTest]] form structure for HTMLForm
+	 * Special:ThumbroTest form structure for HTMLForm
 	 */
 	protected function getFormFields(): array {
 		$fields = [
@@ -329,11 +338,9 @@ class SpecialThumbroTest extends SpecialPage {
 	}
 
 	/**
-	 * @param int $input
-	 * @param array $allData
 	 * @return bool|string
 	 */
-	public static function validateWidth( $input, $allData ) {
+	public static function validateWidth( int $input, array $allData ) {
 		if ( self::validateFileInput( $allData['File'], $allData ) !== true
 			|| !trim( $allData['File'] )
 		) {
