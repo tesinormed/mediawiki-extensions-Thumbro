@@ -32,9 +32,12 @@
 	"ExtensionMessagesFiles": {
 		"ThumbroAlias": "Thumbro.alias.php"
 	},
-	"ExtensionFunctions": [
-		"MediaWiki\\Extension\\Thumbro\\Hooks::initThumbro"
-	],
+	"MediaHandlers": {
+		"image/gif": "MediaWiki\\Extension\\Thumbro\\MediaHandlers\\ThumbroGIFHandler",
+		"image/jpeg": "MediaWiki\\Extension\\Thumbro\\MediaHandlers\\ThumbroJpegHandler",
+		"image/png": "MediaWiki\\Extension\\Thumbro\\MediaHandlers\\ThumbroPNGHandler",
+		"image/webp": "MediaWiki\\Extension\\Thumbro\\MediaHandlers\\ThumbroWebPHandler"
+	},
 	"Hooks": {
 		"BitmapHandlerTransform": "main",
 		"BitmapHandlerCheckImageArea": "main",

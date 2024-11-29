@@ -199,7 +199,7 @@ class SpecialThumbroTest extends SpecialPage {
 		$thumbroThumbData = $this->getImageInfo( $thumbroThumbUrl );
 
 		$this->getOutput()->addHTML(
-			'<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">' .
+			'<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">' .
 				'<pre>' . print_r( $normalThumbData, true ) . '</pre>' .
 				'<pre>' . print_r( $thumbroThumbData, true ) . '</pre>' .
 			'</div>'
