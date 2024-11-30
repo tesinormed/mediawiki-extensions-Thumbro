@@ -1,10 +1,36 @@
 {
+	"name": "starcitizentools/thumbro",
+	"type": "mediawiki-extension",
+	"description": "Imrproves and expands thumbnails in MediaWiki.",
+	"keywords": [
+		"MediaWiki",
+		"Thumbro",
+		"extension"
+	],
+	"homepage": "https://www.mediawiki.org/wiki/Extension:Thumbro",
+	"readme": "README.md",
+	"license": "GPL-2.0-or-later",
+	"authors": [
+		{
+			"name": "alistair3149",
+			"email": "alistair31494322@gmail.com",
+			"role": "Developer"
+		}
+	],
+	"support": {
+		"forum": "https://www.mediawiki.org/wiki/Extension_talk:Thumbro",
+		"wiki": "https://www.mediawiki.org/wiki/Extension:Thumbro",
+		"source": "https://github.com/StarCitizenTools/mediawiki-extensions-Thumbro"
+	},
+	"require": {
+		"composer/installers": ">=1.0.1"
+	},
 	"require-dev": {
-		"mediawiki/mediawiki-codesniffer": "39.0.0",
-		"mediawiki/mediawiki-phan-config": "0.11.1",
-		"mediawiki/minus-x": "1.1.1",
+		"mediawiki/mediawiki-codesniffer": "45.0.0",
+		"mediawiki/mediawiki-phan-config": "0.14.0",
+		"mediawiki/minus-x": "1.1.3",
 		"php-parallel-lint/php-console-highlighter": "1.0.0",
-		"php-parallel-lint/php-parallel-lint": "1.3.2"
+		"php-parallel-lint/php-parallel-lint": "1.4.0"
 	},
 	"scripts": {
 		"fix": [
@@ -13,10 +39,19 @@
 		],
 		"test": [
 			"parallel-lint . --exclude vendor --exclude node_modules",
-			"@phpcs",
+			"phpcs --config-set ignore_warnings_on_exit 1",
+			"phpcs -p -s",
 			"minus-x check ."
 		],
-		"phan": "phan -d . --long-progress-bar",
-		"phpcs": "phpcs -sp --cache"
+		"phan": "phan -d . --long-progress-bar"
+	},
+	"extra": {
+		"installer-name": "Thumbro"
+	},
+	"config": {
+		"allow-plugins": {
+			"composer/installers": true,
+			"dealerdirect/phpcodesniffer-composer-installer": true
+		}
 	}
 }
