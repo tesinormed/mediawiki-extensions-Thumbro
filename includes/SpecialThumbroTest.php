@@ -175,6 +175,8 @@ class SpecialThumbroTest extends SpecialPage {
 
 		// Make url to the Thumbro thumbnail
 		$thumbroThumbUrl = $this->getPageTitle()->getFullUrl( $vipsUrlOptions );
+		$thumbWidth = $thumb->getWidth();
+		$thumbHeight = $thumb->getHeight();
 
 		// HTML for the thumbnails
 		$thumbs = new HtmlSnippet( Html::rawElement( 'div', [ 'class' => 'mw-thumbrotest-thumbnails' ],
@@ -192,7 +194,8 @@ class SpecialThumbroTest extends SpecialPage {
 			Html::element( 'img', [
 				'src' => $imageUrl,
 				'alt' => $this->msg( 'thumbro-original-image' )->text(),
-				'width' => $width
+				'width' => $thumbWidth,
+				'height' => $thumbHeight
 			] ) . ' ' .
 			Html::element( 'img', [
 				'src' => $normalThumbUrl,
@@ -204,7 +207,8 @@ class SpecialThumbroTest extends SpecialPage {
 			Html::element( 'img', [
 				'src' => $imageUrl,
 				'alt' => $this->msg( 'thumbro-original-image' )->text(),
-				'width' => $width
+				'width' => $thumbWidth,
+				'height' => $thumbHeight
 			] ) . ' ' .
 			Html::element( 'img', [
 				'src' => $thumbroThumbUrl,
