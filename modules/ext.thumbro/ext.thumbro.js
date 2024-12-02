@@ -2,7 +2,7 @@
 	'use strict';
 
 	function switchThumbs() {
-		var e = $( '#mw-thumbrotest-thumbnails' ),
+		var e = $( '.mw-thumbrotest-thumbnails' ),
 			mask = e.children( '.uc-mask' ),
 			caption = e.children( '.uc-caption' ),
 			width = e.width(),
@@ -19,7 +19,7 @@
 	}
 
 	$( function () {
-		if ( !document.getElementById( 'mw-thumbrotest-thumbnails' ) ) {
+		if ( !document.querySelector( '.mw-thumbrotest-thumbnails' ) ) {
 			return;
 		}
 		// options are detailed in upstream documentation available at
@@ -30,7 +30,7 @@
 		// - leftgap: the gap to the left of the image
 		// - rightgap: the gap to the right of the image
 		// - defaultgap: the default gap shown before any interactions
-		$( '#mw-thumbrotest-thumbnails' ).ucompare( {
+		$( '.mw-thumbrotest-thumbnails' ).ucompare( {
 			defaultgap: 50,
 			leftgap: 0,
 			rightgap: 0,
@@ -39,7 +39,7 @@
 		} );
 
 		// Also add a click handler to instantly switch beetween pics
-		$( '#mw-thumbrotest-thumbnails' ).on(
+		$( '.mw-thumbrotest-thumbnails' ).on(
 			'click',
 			function () { switchThumbs(); }
 		);

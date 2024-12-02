@@ -59,7 +59,9 @@
                 }, 1e3);
                 // Set the images
                 container.children(".uc-mask").css("backgroundImage", "url(" + imageLeftSource + ")");
+                container.children(".uc-mask").css("background-size", `${width}px ${height}px`);
                 container.children(".uc-bg").css("backgroundImage", "url(" + imageRightSource + ")");
+                container.children(".uc-bg").css("background-size", `${width}px ${height}px`);
                 if ( config.caption ) {
                 	container.children(".uc-caption").show()
             	}

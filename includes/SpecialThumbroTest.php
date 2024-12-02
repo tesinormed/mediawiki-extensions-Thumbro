@@ -177,14 +177,38 @@ class SpecialThumbroTest extends SpecialPage {
 		$thumbroThumbUrl = $this->getPageTitle()->getFullUrl( $vipsUrlOptions );
 
 		// HTML for the thumbnails
-		$thumbs = new HtmlSnippet( Html::rawElement( 'div', [ 'id' => 'mw-thumbrotest-thumbnails' ],
+		$thumbs = new HtmlSnippet( Html::rawElement( 'div', [ 'class' => 'mw-thumbrotest-thumbnails' ],
 			Html::element( 'img', [
 				'src' => $normalThumbUrl,
 				'alt' => $this->msg( 'thumbro-default-thumb' )->text(),
 			] ) . ' ' .
 			Html::element( 'img', [
 				'src' => $thumbroThumbUrl,
-				'alt' => $this->msg( 'thumbro-vips-thumb' )->text(),
+				'alt' => $this->msg( 'thumbro-thumbro-thumb' )->text(),
+			] )
+		) );
+
+		$thumbsOrigCurr = new HtmlSnippet( Html::rawElement( 'div', [ 'class' => 'mw-thumbrotest-thumbnails' ],
+			Html::element( 'img', [
+				'src' => $imageUrl,
+				'alt' => $this->msg( 'thumbro-original-image' )->text(),
+				'width' => $width
+			] ) . ' ' .
+			Html::element( 'img', [
+				'src' => $normalThumbUrl,
+				'alt' => $this->msg( 'thumbro-default-thumb' )->text(),
+			] )
+		) );
+
+		$thumbsOrigThumbro = new HtmlSnippet( Html::rawElement( 'div', [ 'class' => 'mw-thumbrotest-thumbnails' ],
+			Html::element( 'img', [
+				'src' => $imageUrl,
+				'alt' => $this->msg( 'thumbro-original-image' )->text(),
+				'width' => $width
+			] ) . ' ' .
+			Html::element( 'img', [
+				'src' => $thumbroThumbUrl,
+				'alt' => $this->msg( 'thumbro-thumbro-thumb' )->text(),
 			] )
 		) );
 
@@ -198,47 +222,42 @@ class SpecialThumbroTest extends SpecialPage {
 			'items' => $form,
 		] );
 
+		// Need Imagick to output comparison data
+		if ( extension_loaded( 'imagick' ) ) {
+			// Debug stuff to work around Docker localhost HTTP request issue
+			$imageUrl = str_replace( 'localhost', '172.18.0.4', $imageUrl );
+			$normalThumbUrl = str_replace( 'localhost', '172.18.0.4', $normalThumbUrl );
+			$thumbroThumbUrl = str_replace( 'localhost', '172.18.0.4', $thumbroThumbUrl );
+
+			$imagesInfo = $this->getImagesInfo( [
+				'original' => $imageUrl,
+				'normal' => $normalThumbUrl,
+				'thumbro' => $thumbroThumbUrl
+			] );
+
+			$infoHtml = '';
+			foreach( $imagesInfo as $type => $info ) {
+				$infoHtml .= "<div><div>$type</div><ul>";
+				foreach( $info as $key => $value ) {
+					$infoHtml .= "<li>$key: $value</li>";
+				}
+				$infoHtml .= '</ul></div>';
+			}
+
+			$infoHtml = "<div style='display: grid; grid-template-columns:1fr 1fr 1fr; gap: 8px;'>$infoHtml</div>";
+			$this->getOutput()->addHTML( $infoHtml );
+		}
+
 		$this->getOutput()->addHTML(
 			new PanelLayout( [
 				'expanded' => false,
 				'padded' => true,
 				'framed' => true,
-				'content' => [ $fieldset , $thumbs ],
+				'content' => [ $fieldset , $thumbs, $thumbsOrigCurr, $thumbsOrigThumbro ],
 			] )
 		);
 
 		$this->getOutput()->addModules( [ 'ext.thumbro' ] );
-
-		// Need Imagick to output comparison data
-		if ( !extension_loaded( 'imagick' ) ) {
-			return;
-		}
-
-		// Debug stuff to work around Docker localhost HTTP request issue
-		/*
-		$imageUrl = str_replace( 'localhost', '172.18.0.4', $imageUrl );
-		$normalThumbUrl = str_replace( 'localhost', '172.18.0.4', $normalThumbUrl );
-		$thumbroThumbUrl = str_replace( 'localhost', '172.18.0.4', $thumbroThumbUrl );
-		*/
-
-		$imagesInfo = $this->getImagesInfo( [
-			'original' => $imageUrl,
-			'normal' => $normalThumbUrl,
-			'thumbro' => $thumbroThumbUrl
-		] );
-
-		$infoHtml = '';
-		foreach( $imagesInfo as $type => $info ) {
-			$infoHtml .= "<div><div>$type</div><ul>";
-			foreach( $info as $key => $value ) {
-				$infoHtml .= "<li>$key: $value</li>";
-			}
-			$infoHtml .= '</ul></div>';
-		}
-
-		$infoHtml = "<div style='display: grid; grid-template-columns:1fr 1fr 1fr; gap: 8px;'>$infoHtml</div>";
-
-		$this->getOutput()->addHTML( $infoHtml );
 	}
 
 	/**
