@@ -26,10 +26,12 @@ use Html;
 use HTMLForm;
 use HTMLIntField;
 use HTMLTextField;
+use Imagick;
 use MediaTransformOutput;
 use MediaWiki\Extension\Thumbro\Libraries\Libvips;
 use MediaWiki\MainConfigNames;
 use MediaWiki\MediaWikiServices;
+use MWHttpRequest;
 use OOUI\FieldsetLayout;
 use OOUI\HtmlSnippet;
 use OOUI\LabelWidget;
@@ -154,8 +156,9 @@ class SpecialThumbroTest extends SpecialPage {
 		}
 
 		// Check if we actually scaled the file
+		$imageUrl = $file->getFullUrl();
 		$normalThumbUrl = $services->getUrlUtils()->expand( $thumb->getUrl() );
-		if ( $normalThumbUrl === $file->getFullUrl() ) {
+		if ( $normalThumbUrl === $imageUrl ) {
 			$this->getOutput()->addWikiMsg( 'thumbro-thumb-notscaled' );
 		}
 
@@ -193,43 +196,107 @@ class SpecialThumbroTest extends SpecialPage {
 			] )
 		);
 
-		// Debug stuff to work around Docker localhost HTTP request issue
-		// $normalThumbUrl = str_replace( 'localhost', '172.18.0.4', $normalThumbUrl );
-		// $thumbroThumbUrl = str_replace( 'localhost', '172.18.0.4', $thumbroThumbUrl );
-
-		$normalThumbData = $this->getImageInfo( $normalThumbUrl );
-		$thumbroThumbData = $this->getImageInfo( $thumbroThumbUrl );
-
-		// PLaceholder UI, will update later
-		$this->getOutput()->addHTML(
-			'<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">' .
-				'<pre>' . print_r( $normalThumbData, true ) . '</pre>' .
-				'<pre>' . print_r( $thumbroThumbData, true ) . '</pre>' .
-			'</div>'
-		);
-		// Finally output all of the above
 		$this->getOutput()->addModules( [ 'ext.thumbro' ] );
+
+		// Need Imagick to output comparison data
+		if ( !extension_loaded( 'imagick' ) ) {
+			return;
+		}
+
+		// Debug stuff to work around Docker localhost HTTP request issue
+		/*
+		$imageUrl = str_replace( 'localhost', '172.18.0.4', $imageUrl );
+		$normalThumbUrl = str_replace( 'localhost', '172.18.0.4', $normalThumbUrl );
+		$thumbroThumbUrl = str_replace( 'localhost', '172.18.0.4', $thumbroThumbUrl );
+		*/
+
+		$imagesInfo = $this->getImagesInfo( [
+			'original' => $imageUrl,
+			'normal' => $normalThumbUrl,
+			'thumbro' => $thumbroThumbUrl
+		] );
+
+		$infoHtml = '';
+		foreach( $imagesInfo as $type => $info ) {
+			$infoHtml .= "<div><div>$type</div><ul>";
+			foreach( $info as $key => $value ) {
+				$infoHtml .= "<li>$key: $value</li>";
+			}
+			$infoHtml .= '</ul></div>';
+		}
+
+		$infoHtml = "<div style='display: grid; grid-template-columns:1fr 1fr 1fr; gap: 8px;'>$infoHtml</div>";
+
+		$this->getOutput()->addHTML( $infoHtml );
 	}
 
 	/**
-	 * Return an array of useful information about a thumbnail
+	 * Return the information for display for both images
 	 */
-	private function getImageInfo( string $imageUrl ): array {
+	private function getImagesInfo( array $imageUrls ): array {
+		$images = [];
+		foreach ( $imageUrls as $type => $url ) {
+			$req = $this->getImageRequest( $url );
+			$image = new Imagick();
+			$image->readImageBlob( $req->getContent() );
+			$images[$type] = $image;
+		}
+
+		// Resize the original image to match the thumbnail's dimensions for more accurate comparison
+		$images['original']->resizeImage(
+			$images['normal']->getImageWidth(),
+			$images['normal']->getImageHeight(),
+			Imagick::FILTER_LANCZOS, 1
+		);
+
+		$info = [];
+		foreach( $images as $type => $image ) {
+			if ( $type === 'original' ) {
+				continue;
+			}
+
+			$info[$type] = [
+				'Width' => $image->getImageWidth(),
+				'Height' => $image->getImageHeight(),
+				'Type' => $image->getImageMimeType(),
+				'Size' => $this->humanFileSize( $image->getImageLength() ),
+				'PSNR' => $image->compareImages( $images['original'], Imagick::METRIC_PEAKSIGNALTONOISERATIO )[1]
+			];
+
+			// ImageMagick 6.9.0+
+			if ( defined( 'Imagick::METRIC_PERCEPTUALHASH_ERROR' ) ) {
+				$info[$type]['Perceptual Hash'] = $image->compareImages( $images['original'], Imagick::METRIC_PERCEPTUALHASH_ERROR )[1];
+			}
+
+			// ImageMagick 7.0.7
+			if ( defined( 'Imagick::METRIC_STRUCTURAL_SIMILARITY_ERROR' ) ) {
+				$info[$type]['SSIM'] = $image->compareImages( $images['original'], Imagick::METRIC_STRUCTURAL_SIMILARITY_ERROR )[1];
+			}
+		}
+		return $info;
+	}
+
+	/**
+	 * Return the metric of Imagick::compareImages if avaliable
+	 */
+	private function getImageMetric( Imagick $image, string $metric ): ?string {
+		if ( defined( $metric ) ) {
+			return $image->compareImages( $image, $metric )[1];
+		}
+	}
+
+	/**
+	 * Return the MWHttpRequest object if the request is successful
+	 */
+	private function getImageRequest( string $url ): ?MWHttpRequest {
 		$httpRequestFactory = $this->services->getHttpRequestFactory();
-		$req = $httpRequestFactory->create( $imageUrl, [], __METHOD__ );
+		$req = $httpRequestFactory->create( $url, [], __METHOD__ );
 		$req->setHeader( 'X-Thumbro-Secret', $this->secret );
 		$result = $req->execute();
 		if ( !$result->isGood() ) {
-			return [];
+			return null;
 		}
-
-		$fileSize = $req->getResponseHeader( 'content-length' );
-		$mimeType = $req->getResponseHeader( 'content-type' );
-	
-		return [
-			'type' => $mimeType,
-			'size' => $this->humanFileSize( $fileSize ) ?? ''
-		];
+		return $req;
 	}
 
 	/**
