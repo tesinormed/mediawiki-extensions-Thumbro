@@ -6,11 +6,8 @@ use Config;
 use ConfigFactory;
 use File;
 use MediaTransformOutput;
+use MediaWiki\Extension\Thumbro\MediaHandlers;
 use MediaWiki\Extension\Thumbro\Libraries\Libvips;
-use MediaWiki\Extension\Thumbro\MediaHandlers\ThumbroGIFHandler;
-use MediaWiki\Extension\Thumbro\MediaHandlers\ThumbroJpegHandler;
-use MediaWiki\Extension\Thumbro\MediaHandlers\ThumbroPNGHandler;
-use MediaWiki\Extension\Thumbro\MediaHandlers\ThumbroWebPHandler;
 use MediaWiki\Hook\BitmapHandlerCheckImageAreaHook;
 use MediaWiki\Hook\BitmapHandlerTransformHook;
 use MediaWiki\Hook\SoftwareInfoHook;
@@ -30,16 +27,16 @@ class Hooks implements
 	}
 
 	public static function initThumbro(): void {
-		global $wgThumbroEnabled;
+		global $wgThumbroEnabled, $wgMediaHandlers; 
 		// Thumbro is not enabled, do not add any MediaHandlers
 		if ( $wgThumbroEnabled !== true ) {
 			return;
 		}
+
 		// Attach WebP handlers
-		$wgMediaHandlers['image/gif'] = ThumbroGIFHandler::class;
-		$wgMediaHandlers['image/jpeg'] = ThumbroJpegHandler::class;
-		$wgMediaHandlers['image/png'] = ThumbroPNGHandler::class;
-		$wgMediaHandlers['image/webp'] = ThumbroWebPHandler::class;
+		foreach( MediaHandlers::HANDLERS as $mimeType => $class ) {
+			$wgMediaHandlers[$mimeType] = $class;
+		}
 	}
 
 	/**

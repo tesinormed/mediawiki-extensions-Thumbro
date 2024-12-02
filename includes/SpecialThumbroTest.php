@@ -28,11 +28,8 @@ use HTMLIntField;
 use HTMLTextField;
 use Imagick;
 use MediaTransformOutput;
+use MediaWiki\Extension\Thumbro\MediaHandlers;
 use MediaWiki\Extension\Thumbro\Libraries\Libvips;
-use MediaWiki\Extension\Thumbro\MediaHandlers\ThumbroGIFHandler;
-use MediaWiki\Extension\Thumbro\MediaHandlers\ThumbroJpegHandler;
-use MediaWiki\Extension\Thumbro\MediaHandlers\ThumbroPNGHandler;
-use MediaWiki\Extension\Thumbro\MediaHandlers\ThumbroWebPHandler;
 use MediaWiki\MainConfigNames;
 use MediaWiki\MediaWikiServices;
 use MWHttpRequest;
@@ -52,13 +49,6 @@ use User;
  * @author Bryan Tong Minh
  */
 class SpecialThumbroTest extends SpecialPage {
-
-	private const THUMBRO_HANDLERS = [
-		'image/gif' => ThumbroGIFHandler::class,
-		'image/jpeg' => ThumbroJpegHandler::class,
-		'image/png' => ThumbroPNGHandler::class,
-		'image/webp' => ThumbroWebPHandler::class
-	];
 
 	private $secret;
 
@@ -497,8 +487,7 @@ class SpecialThumbroTest extends SpecialPage {
 		}
 
 		$inputMimeType = $file->getMimeType();
-		$handlerClass = self::THUMBRO_HANDLERS[$inputMimeType] ?? null;
-		var_dump( $handlerClass );
+		$handlerClass = MediaHandlers::HANDLERS[$inputMimeType] ?? null;
 		$handler =  $handlerClass !== null && class_exists( $handlerClass )
 			?  new $handlerClass()
 			: $file->getHandler();
