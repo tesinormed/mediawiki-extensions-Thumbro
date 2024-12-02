@@ -29,6 +29,10 @@ use HTMLTextField;
 use Imagick;
 use MediaTransformOutput;
 use MediaWiki\Extension\Thumbro\Libraries\Libvips;
+use MediaWiki\Extension\Thumbro\MediaHandlers\ThumbroGIFHandler;
+use MediaWiki\Extension\Thumbro\MediaHandlers\ThumbroJpegHandler;
+use MediaWiki\Extension\Thumbro\MediaHandlers\ThumbroPNGHandler;
+use MediaWiki\Extension\Thumbro\MediaHandlers\ThumbroWebPHandler;
 use MediaWiki\MainConfigNames;
 use MediaWiki\MediaWikiServices;
 use MWHttpRequest;
@@ -48,6 +52,13 @@ use User;
  * @author Bryan Tong Minh
  */
 class SpecialThumbroTest extends SpecialPage {
+
+	private const THUMBRO_HANDLERS = [
+		'image/gif' => ThumbroGIFHandler::class,
+		'image/jpeg' => ThumbroJpegHandler::class,
+		'image/png' => ThumbroPNGHandler::class,
+		'image/webp' => ThumbroWebPHandler::class
+	];
 
 	private $secret;
 
@@ -444,7 +455,7 @@ class SpecialThumbroTest extends SpecialPage {
 	}
 
 	/**
-	 *
+	 * Stream thumbnail from Special:ThumbroTest&thumb=
 	 */
 	protected function streamThumbnail() {
 		$request = $this->getRequest();
@@ -462,8 +473,14 @@ class SpecialThumbroTest extends SpecialPage {
 			return;
 		}
 
+		$inputMimeType = $file->getMimeType();
+		$handlerClass = self::THUMBRO_HANDLERS[$inputMimeType] ?? null;
+		var_dump( $handlerClass );
+		$handler =  $handlerClass !== null && class_exists( $handlerClass )
+			?  new $handlerClass()
+			: $file->getHandler();
+
 		// Validate param string
-		$handler = $file->getHandler();
 		$params = [ 'width' => $request->getInt( 'width' ) ];
 		if ( !$handler->normaliseParams( $file, $params ) ) {
 			$this->streamError( 500, "Thumbro: invalid parameters" );
@@ -475,7 +492,6 @@ class SpecialThumbroTest extends SpecialPage {
 		$thumbroOptions = $config->get( 'ThumbroOptions' );
 		$thumbroLibraries = $config->get( 'ThumbroLibraries' );
 
-		$inputMimeType = $file->getMimeType();
 		// Respect MediaHandler thumbType
 		[ $extension, $mimeType ] = $handler->getThumbType( $file->getExtension(), $inputMimeType );
 

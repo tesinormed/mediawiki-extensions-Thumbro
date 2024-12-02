@@ -60,7 +60,7 @@ class Hooks implements
 		$config = $this->config;
 
 		// Abort all transformations when Thumbro is not enabled
-		if ( $config->get( 'ThumbroEnabled') !== true ) {
+		if ( $config->get( 'ThumbroEnabled' ) !== true ) {
 			return true;
 		}
 
