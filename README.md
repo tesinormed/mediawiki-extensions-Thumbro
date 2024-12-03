@@ -13,6 +13,8 @@ Thumbor at home:
 - Use libvips to render thumbnails instead of ImageMagick and GD
 - Allow custom output options for libvips
 - Render WebP thumbnails by default for gif (animated too!), jpeg, png, webp
+- Allow adding `<source>` element to the image using the `ThumbroBeforeHtml` hook
+- Add a hidden anchor element to allow web crawler to crawl the original resolution image ([T54647](https://phabricator.wikimedia.org/T54647))
 
 ## Installation
 1. Install [libvips](https://www.libvips.org/install.html). For Debian-based systems:
