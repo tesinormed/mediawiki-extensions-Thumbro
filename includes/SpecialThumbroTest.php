@@ -156,54 +156,41 @@ class SpecialThumbroTest extends SpecialPage {
 			return;
 		}
 
+		$imageUrls = [
+			'original' => $file->getFullUrl(),
+			'normal' => $services->getUrlUtils()->expand( $thumb->getUrl() ),
+			'thumbro' => $this->getPageTitle()->getFullUrl( $vipsUrlOptions )
+		];
+
 		// Check if we actually scaled the file
-		$imageUrl = $file->getFullUrl();
-		$normalThumbUrl = $services->getUrlUtils()->expand( $thumb->getUrl() );
-		if ( $normalThumbUrl === $imageUrl ) {
+		if ( $imageUrls['normal'] === $imageUrls['original'] ) {
 			$this->getOutput()->addWikiMsg( 'thumbro-thumb-notscaled' );
 		}
 
-		// Make url to the Thumbro thumbnail
-		$thumbroThumbUrl = $this->getPageTitle()->getFullUrl( $vipsUrlOptions );
 		$thumbWidth = $thumb->getWidth();
 		$thumbHeight = $thumb->getHeight();
 
+		$imgs = [];
+		foreach( $imageUrls as $type => $url ) {
+			$imgs[$type] = Html::element( 'img', [
+				'src' => $url,
+				'alt' => $this->msg( "thumbro-$type-image" )->text(),
+				'width' => $thumbWidth,
+				'height' => $thumbHeight
+			] );
+		}
+
 		// HTML for the thumbnails
 		$thumbs = new HtmlSnippet( Html::rawElement( 'div', [ 'class' => 'mw-thumbrotest-thumbnails' ],
-			Html::element( 'img', [
-				'src' => $normalThumbUrl,
-				'alt' => $this->msg( 'thumbro-default-thumb' )->text(),
-			] ) . ' ' .
-			Html::element( 'img', [
-				'src' => $thumbroThumbUrl,
-				'alt' => $this->msg( 'thumbro-thumbro-thumb' )->text(),
-			] )
+			$imgs['normal'] . $imgs['thumbro']
 		) );
 
 		$thumbsOrigCurr = new HtmlSnippet( Html::rawElement( 'div', [ 'class' => 'mw-thumbrotest-thumbnails' ],
-			Html::element( 'img', [
-				'src' => $imageUrl,
-				'alt' => $this->msg( 'thumbro-original-image' )->text(),
-				'width' => $thumbWidth,
-				'height' => $thumbHeight
-			] ) . ' ' .
-			Html::element( 'img', [
-				'src' => $normalThumbUrl,
-				'alt' => $this->msg( 'thumbro-default-thumb' )->text(),
-			] )
+			$imgs['original'] . $imgs['normal']
 		) );
 
 		$thumbsOrigThumbro = new HtmlSnippet( Html::rawElement( 'div', [ 'class' => 'mw-thumbrotest-thumbnails' ],
-			Html::element( 'img', [
-				'src' => $imageUrl,
-				'alt' => $this->msg( 'thumbro-original-image' )->text(),
-				'width' => $thumbWidth,
-				'height' => $thumbHeight
-			] ) . ' ' .
-			Html::element( 'img', [
-				'src' => $thumbroThumbUrl,
-				'alt' => $this->msg( 'thumbro-thumbro-thumb' )->text(),
-			] )
+			$imgs['original'] . $imgs['thumbro']
 		) );
 
 		// Helper messages shown above the thumbnails rendering
@@ -219,15 +206,11 @@ class SpecialThumbroTest extends SpecialPage {
 		// Need Imagick to output comparison data
 		if ( extension_loaded( 'imagick' ) ) {
 			// Debug stuff to work around Docker localhost HTTP request issue
-			$imageUrl = str_replace( 'localhost', '172.18.0.4', $imageUrl );
-			$normalThumbUrl = str_replace( 'localhost', '172.18.0.4', $normalThumbUrl );
-			$thumbroThumbUrl = str_replace( 'localhost', '172.18.0.4', $thumbroThumbUrl );
+			foreach( $imageUrls as $type => $url ) {
+				$imageUrls[$type] = str_replace( 'localhost', '172.18.0.4', $url );
+			}
 
-			$imagesInfo = $this->getImagesInfo( [
-				'original' => $imageUrl,
-				'normal' => $normalThumbUrl,
-				'thumbro' => $thumbroThumbUrl
-			] );
+			$imagesInfo = $this->getImagesInfo( $imageUrls );
 
 			$infoHtml = '';
 			foreach( $imagesInfo as $type => $info ) {
@@ -238,8 +221,15 @@ class SpecialThumbroTest extends SpecialPage {
 				$infoHtml .= '</ul></div>';
 			}
 
-			$infoHtml = "<div style='display: grid; grid-template-columns:1fr 1fr 1fr; gap: 8px;'>$infoHtml</div>";
-			$this->getOutput()->addHTML( $infoHtml );
+			$infoHtml = new HtmlSnippet( "<div style='display: grid; grid-template-columns:1fr 1fr 1fr; gap: 8px;'>$infoHtml</div>" );
+			$this->getOutput()->addHTML(
+				new PanelLayout( [
+					'expanded' => false,
+					'padded' => true,
+					'framed' => true,
+					'content' => [ $infoHtml ],
+				] )
+			);
 		}
 
 		$this->getOutput()->addHTML(
