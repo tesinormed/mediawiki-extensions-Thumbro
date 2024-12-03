@@ -28,6 +28,7 @@ namespace MediaWiki\Extension\Thumbro\Libraries;
 use File;
 use MediaTransformOutput;
 use MediaWiki\Extension\Thumbro\ShellCommand;
+use MediaWiki\Extension\Thumbro\ThumbroThumbnailImage;
 use MediaWiki\Extension\Thumbro\Utils;
 use MediaWiki\Shell\Shell;
 use ThumbnailImage;
@@ -77,7 +78,7 @@ class Libvips {
 		}
 
 		// Set the output variable
-		$mto = new ThumbnailImage( $file, $params['dstUrl'],
+		$mto = new ThumbroThumbnailImage( $file, $params['dstUrl'],
 			$params['clientWidth'], $params['clientHeight'], $params['dstPath'] );
 
 		// Stop processing

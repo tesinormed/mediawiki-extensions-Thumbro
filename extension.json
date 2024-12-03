@@ -33,7 +33,7 @@
 		"ThumbroAlias": "Thumbro.alias.php"
 	},
 	"ExtensionFunctions": [
-		"MediaWiki\\Extension\\Thumbro\\Hooks::initThumbro"
+		"MediaWiki\\Extension\\Thumbro\\Hooks\\MediaWikiHooks::initThumbro"
 	],
 	"Hooks": {
 		"BitmapHandlerTransform": "main",
@@ -42,7 +42,7 @@
 	},
 	"HookHandlers": {
 		"main": {
-			"class": "MediaWiki\\Extension\\Thumbro\\Hooks",
+			"class": "MediaWiki\\Extension\\Thumbro\\Hooks\\MediaWikiHooks",
 			"services": [
 				"ConfigFactory"
 			]

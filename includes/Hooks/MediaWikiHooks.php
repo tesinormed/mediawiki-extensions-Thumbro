@@ -1,6 +1,6 @@
 <?php
 
-namespace MediaWiki\Extension\Thumbro;
+namespace MediaWiki\Extension\Thumbro\Hooks;
 
 use Config;
 use ConfigFactory;
@@ -8,6 +8,7 @@ use File;
 use MediaTransformOutput;
 use MediaWiki\Extension\Thumbro\MediaHandlers;
 use MediaWiki\Extension\Thumbro\Libraries\Libvips;
+use MediaWiki\Extension\Thumbro\Utils;
 use MediaWiki\Hook\BitmapHandlerCheckImageAreaHook;
 use MediaWiki\Hook\BitmapHandlerTransformHook;
 use MediaWiki\Hook\SoftwareInfoHook;
@@ -15,7 +16,7 @@ use MediaWiki\MainConfigNames;
 use MediaWiki\Shell\Shell;
 use TransformationalImageHandler;
 
-class Hooks implements
+class MediaWikiHooks implements
 	BitmapHandlerTransformHook,
 	BitmapHandlerCheckImageAreaHook,
 	SoftwareInfoHook
