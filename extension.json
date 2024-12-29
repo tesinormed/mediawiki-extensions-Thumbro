@@ -1,7 +1,8 @@
 {
 	"name": "Thumbro",
-	"version": "0.1.0",
+	"version": "0.2.0",
 	"author": [
+		"tesinormed",
 		"[https://www.mediawiki.org/wiki/User:Alistair3149 Alistair3149]",
 		"Bryan Tong Minh"
 	],
@@ -10,27 +11,13 @@
 	"license-name": "GPL-2.0-or-later",
 	"type": "media",
 	"requires": {
-		"MediaWiki": ">= 1.39.4"
+		"MediaWiki": ">= 1.42"
 	},
 	"AutoloadNamespaces": {
 		"MediaWiki\\Extension\\Thumbro\\": "includes/"
 	},
-	"SpecialPages": {
-		"ThumbroTest": "MediaWiki\\Extension\\Thumbro\\SpecialThumbroTest"
-	},
-	"GroupPermissions": {
-		"sysop": {
-			"thumbro-test": true
-		}
-	},
-	"AvailableRights": [
-		"thumbro-test"
-	],
 	"MessagesDirs": {
 		"Thumbro": "i18n"
-	},
-	"ExtensionMessagesFiles": {
-		"ThumbroAlias": "Thumbro.alias.php"
 	},
 	"ExtensionFunctions": [
 		"MediaWiki\\Extension\\Thumbro\\Hooks\\MediaWikiHooks::initThumbro"
@@ -48,32 +35,11 @@
 			]
 		}
 	},
-	"ResourceModules": {
-		"ext.thumbro": {
-			"scripts": [
-				"modules/jquery.ucompare/js/jquery.ucompare.js",
-				"modules/ext.thumbro/ext.thumbro.js"
-			],
-			"styles": [
-				"modules/jquery.ucompare/css/jquery.ucompare.css",
-				"modules/ext.thumbro/ext.thumbro.css"
-			],
-			"messages": [
-				"thumbro-show-both",
-				"thumbro-show-default",
-				"thumbro-show-vips"
-			]
-		}
-	},
-	"ResourceFileModulePaths": {
-		"localBasePath": "",
-		"remoteExtPath": "Thumbro"
-	},
 	"config": {
 		"ThumbroEnabled": {
 			"value": true
 		},
-		"ThumbroLibraries" : {
+		"ThumbroLibraries": {
 			"value": {
 				"libvips": {
 					"command": "/usr/bin/vipsthumbnail"
@@ -116,14 +82,17 @@
 						"Q": "90",
 						"smart_subsample": "true"
 					}
+				},
+				"image/avif": {
+					"enabled": true,
+					"library": "libvips",
+					"outputOptions": {
+						"strip": "true",
+						"Q": "90",
+						"encoder": "aom"
+					}
 				}
 			}
-		},
-		"ThumbroExposeTestPage": {
-			"value": false
-		},
-		"ThumbroTestExpiry": {
-			"value": 3600
 		}
 	},
 	"ConfigRegistry": {

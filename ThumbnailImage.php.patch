@@ -1,0 +1,67 @@
+24a25
+> use MediaWiki\Extension\Thumbro\Hooks\HookRunner as ThumbroHookRunner;
+222,223c223,224
+< 		( new HookRunner( $services->getHookContainer() ) )
+< 			->onThumbnailBeforeProduceHTML( $this, $attribs, $linkAttribs );
+---
+> 		$hookContainer = $services->getHookContainer();
+> 		( new HookRunner( $hookContainer ) )->onThumbnailBeforeProduceHTML( $this, $attribs, $linkAttribs );
+225c226,281
+< 		return $this->linkWrap( $linkAttribs, Xml::element( 'img', $attribs ) );
+---
+> 		$sources = [];
+> 		if ( isset ($attribs[ 'srcset' ] ) ) {
+> 			// Move srcset from img to source element
+> 			$sources[] = [ 'srcset' => $this->url . ', ' . $attribs['srcset'] ];
+> 			unset( $attribs['srcset'] );
+> 		}
+> 		( new ThumbroHookRunner( $hookContainer ) )->onThumbroBeforeProduceHtml( $this, $sources );
+>
+> 		$p = Html::openElement('picture');
+>
+> 		foreach ( $sources as $source ) {
+> 			// <source> should always have a valid srcset when inside <picture>
+> 			if (!$source['srcset'] ) {
+> 				continue;
+> 			}
+>
+> 			$sourceAttribs = [
+> 				'srcset' => $source['srcset'],
+> 			];
+>
+> 			if ( !empty( $source['type'] ) ) {
+> 				$sourceAttribs['type'] = $source['type'];
+> 			}
+> 			if ( !empty( $source['sizes'] ) ) {
+> 				$sourceAttribs['sizes'] = $source['sizes'];
+> 			}
+> 			if ( !empty( $source['media'] ) ) {
+> 				$sourceAttribs['media'] = $source['media'];
+> 			}
+> 			if ( !empty($source['width'] ) && !empty( $attribs['width'] ) && $source['width'] !== $attribs['width'] ) {
+> 				$sourceAttribs['width'] = $source['width'];
+> 			}
+> 			if ( !empty($source['height'] ) && !empty( $attribs['height'] ) && $source['height'] !== $attribs['height'] ) {
+> 				$sourceAttribs['height'] = $source['height'];
+> 			}
+>
+> 			$p .= Html::element( 'source', $sourceAttribs );
+> 		}
+>
+> 		// Original image
+> 		$p .= Html::element( 'img', $attribs );
+>
+> 		$p .= Html::closeElement( 'picture' );
+>
+> 		$sourceLink = Html::rawElement(
+> 			'a',
+> 			[
+> 				'href' => $this->file->getUrl(),
+> 				'class' => 'mw-file-source',
+> 				// FIXME: Need i18n
+> 				'title' => 'View source image'
+> 			],
+> 			'<!-- Image link for Crawlers -->'
+> 		);
+>
+> 		return $this->linkWrap( $linkAttribs, $p ) . $sourceLink;

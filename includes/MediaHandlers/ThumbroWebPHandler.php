@@ -10,13 +10,13 @@ class ThumbroWebPHandler extends WebPHandler {
 	 * @inheritDoc
 	 */
 	public function getThumbType( $ext, $mime, $params = null ) {
-		return [ 'webp', 'image/webp' ];
+		return [ 'avif', 'image/avif' ];
 	}
 
 	/**
 	 * @inheritDoc
 	 */
-	public function mustRender( $file ) {
+	public function mustRender( $file ): bool {
 		return false;
 	}
 }

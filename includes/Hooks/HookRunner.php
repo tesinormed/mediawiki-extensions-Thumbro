@@ -2,8 +2,8 @@
 
 namespace MediaWiki\Extension\Thumbro\Hooks;
 
-use MediaWiki\Extension\Thumbro\ThumbroThumbnailImage;
 use MediaWiki\HookContainer\HookContainer;
+use ThumbnailImage;
 
 /**
  * This is a hook runner class, see docs/Hooks.md in core.
@@ -19,7 +19,7 @@ class HookRunner implements ThumbroBeforeProduceHtmlHook {
 	/**
 	 * @inheritDoc
 	 */
-	public function onThumbroBeforeProduceHtml( ThumbroThumbnailImage $thumbnail, array &$sources ) {
+	public function onThumbroBeforeProduceHtml( ThumbnailImage $thumbnail, array &$sources ) {
 		return $this->hookContainer->run(
 			'ThumbroBeforeProduceHtml',
 			[ $thumbnail, &$sources ]

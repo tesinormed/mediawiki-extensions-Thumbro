@@ -6,8 +6,8 @@ namespace MediaWiki\Extension\Thumbro;
 
 use Config;
 use File;
+use MediaHandler;
 use MediaWiki\Shell\Shell;
-use TransformationalImageHandler;
 
 class Utils {
 	/**
@@ -15,7 +15,7 @@ class Utils {
 	 * If it should, return the options
 	 */
 	public static function getOptions(
-		TransformationalImageHandler $handler,
+		MediaHandler $handler,
 		File $file,
 		Config $config
 	): ?array {

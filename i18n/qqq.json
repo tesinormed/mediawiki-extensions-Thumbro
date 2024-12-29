@@ -6,27 +6,5 @@
 			"Umherirrender"
 		]
 	},
-	"thumbrotest": "{{doc-special|ThumbroTest|unlisted=1}}",
-	"thumbro-desc": "{{desc|name=Thumbro|url=https://www.mediawiki.org/wiki/Extension:Thumbro}}",
-	"thumbro-invalid-file": "Error message when SpecialVipsTest was given a non existent or invalid file name",
-	"thumbro-invalid-width": "Error message when SpecialVipsTest did not get a valid width parameter\n\nSee also {{msg-mw|Vipsscaler-invalid-sharpen}}",
-	"thumbro-invalid-sharpen": "Error message when SpecialVipsTest did not get a valid sharpen parameter\n\nSee also {{msg-mw|Vipsscaler-invalid-width}}",
-	"thumbro-thumb-error": "Error message when libvips did not manage to generate a thumbnail",
-	"thumbro-thumb-notscaled": "Error message when libvips did not scale the thumbnail.",
-	"thumbro-form-legend": "Special:ThumbroTest form: legend at top of the form",
-	"thumbro-form-width": "Special:ThumbroTest form: label for the width input box",
-	"thumbro-form-file": "Special:ThumbroTest form: label for the file input box",
-	"thumbro-form-sharpen-radius": "Special:ThumbroTest form: label for the sharpening amount input box",
-	"thumbro-form-bilinear": "Special:ThumbroTest form: Checkbox label to determine whether to enable bilinear scaling",
-	"thumbro-form-submit": "Special:ThumbroTest form: submit button text. The page will then attempt to generate a thumbnail with the given parameters.",
-	"thumbro-thumbs-legend": "Used as header for the result on [[wikipedia:Special:ThumbroTest|Special:ThumbroTest]]",
-	"thumbro-thumbs-help": "Used as help text for the result on [[wikipedia:Special:ThumbroTest|Special:ThumbroTest]]",
-	"thumbro-original-image": "Special:ThumbroTest: caption of the original image",
-	"thumbro-normal-image": "Special:ThumbroTest: caption of the default thumbnail",
-	"thumbro-thumbro-image": "Special:ThumbroTest: caption of the thumbro thumbnail",
-	"thumbro-show-both": "Special:ThumbroTest: button to show both thumbnails",
-	"thumbro-show-default": "Special:ThumbroTest: button to show default thumbnail only",
-	"thumbro-show-vips": "Special:ThumbroTest: button to show libvips thumbnail only",
-	"action-thumbro-test": "{{doc-action|thumbro-test}}",
-	"right-thumbro-test": "{{doc-right|thumbro-test}}"
+	"thumbro-desc": "{{desc|name=Thumbro|url=https://www.mediawiki.org/wiki/Extension:Thumbro}}"
 }

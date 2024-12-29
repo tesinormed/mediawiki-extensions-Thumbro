@@ -10,6 +10,6 @@ class ThumbroJpegHandler extends JpegHandler {
 	 * @inheritDoc
 	 */
 	public function getThumbType( $ext, $mime, $params = null ) {
-		return [ 'webp', 'image/webp' ];
+		return [ 'avif', 'image/avif' ];
 	}
 }

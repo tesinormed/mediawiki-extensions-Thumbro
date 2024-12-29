@@ -6,8 +6,8 @@ use Config;
 use ConfigFactory;
 use File;
 use MediaTransformOutput;
-use MediaWiki\Extension\Thumbro\MediaHandlers;
 use MediaWiki\Extension\Thumbro\Libraries\Libvips;
+use MediaWiki\Extension\Thumbro\MediaHandlers;
 use MediaWiki\Extension\Thumbro\Utils;
 use MediaWiki\Hook\BitmapHandlerCheckImageAreaHook;
 use MediaWiki\Hook\BitmapHandlerTransformHook;
@@ -28,14 +28,14 @@ class MediaWikiHooks implements
 	}
 
 	public static function initThumbro(): void {
-		global $wgThumbroEnabled, $wgMediaHandlers; 
+		global $wgThumbroEnabled, $wgMediaHandlers;
 		// Thumbro is not enabled, do not add any MediaHandlers
 		if ( $wgThumbroEnabled !== true ) {
 			return;
 		}
 
-		// Attach WebP handlers
-		foreach( MediaHandlers::HANDLERS as $mimeType => $class ) {
+		// Attach media handlers
+		foreach ( MediaHandlers::HANDLERS as $mimeType => $class ) {
 			$wgMediaHandlers[$mimeType] = $class;
 		}
 	}
@@ -124,7 +124,7 @@ class MediaWikiHooks implements
 		if ( extension_loaded( 'gd' ) ) {
 			$gdVersion = gd_info()['GD Version'];
 			if ( $gdVersion ) {
-				$software[ '[https://www.php.net/manual/en/book.image.php GD]' ] = gd_info()['GD Version'];
+				$software[ '[https://www.php.net/manual/en/book.image.php GD]' ] = $gdVersion;
 			}
 		}
 	}

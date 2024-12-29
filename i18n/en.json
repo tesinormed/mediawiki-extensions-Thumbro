@@ -2,27 +2,5 @@
 	"@metadata": {
 		"authors": []
 	},
-	"thumbrotest": "Thumbro test page",
-	"thumbro-desc": "Improve and expand thumbnailing in MediaWiki",
-	"thumbro-invalid-file": "Could not process requested file. Check that it exists on this wiki.",
-	"thumbro-invalid-width": "Thumbnail width should be larger than zero and not larger than file width.",
-	"thumbro-invalid-sharpen": "Sharpening amount should be a number larger than zero and smaller than five.",
-	"thumbro-thumb-error": "libvips could not generate a thumbnail with given parameters.",
-	"thumbro-thumb-notscaled": "libvips did not scale the thumbnail.",
-	"thumbro-form-legend": "Parameters",
-	"thumbro-form-width": "Thumbnail width:",
-	"thumbro-form-file": "File on this wiki:",
-	"thumbro-form-sharpen-radius": "Amount of sharpening:",
-	"thumbro-form-bilinear": "Bilinear scaling",
-	"thumbro-form-submit": "Generate thumbnails",
-	"thumbro-thumbs-legend": "Generated thumbnails",
-	"thumbro-thumbs-help": "Move your mouse over the thumbnail to compare the thumbnails.",
-	"thumbro-original-image": "Original",
-	"thumbro-normal-image": "Current",
-	"thumbro-thumbro-image": "Thumbro",
-	"thumbro-show-both": "Show both thumbnails",
-	"thumbro-show-default": "Show default thumbnail only",
-	"thumbro-show-vips": "Show libvips thumbnail only",
-	"action-thumbro-test": "use the libvips scaling test interface [[Special:ThumbroTest]]",
-	"right-thumbro-test": "Use the libvips scaling test interface [[Special:ThumbroTest]]"
+	"thumbro-desc": "Improve and expand thumbnailing in MediaWiki"
 }

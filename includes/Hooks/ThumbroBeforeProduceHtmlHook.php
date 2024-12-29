@@ -2,7 +2,7 @@
 
 namespace MediaWiki\Extension\Thumbro\Hooks;
 
-use MediaWiki\Extension\Thumbro\ThumbroThumbnailImage;
+use ThumbnailImage;
 
 /**
  * This is a hook handler interface, see docs/Hooks.md in core.
@@ -13,9 +13,9 @@ use MediaWiki\Extension\Thumbro\ThumbroThumbnailImage;
  */
 interface ThumbroBeforeProduceHtmlHook {
 	/**
-	 * @param ThumbroThumbnailImage $context
-	 * @param array $sources
+	 * @param ThumbnailImage $thumbnail
+	 * @param array &$sources
 	 * @return bool|void True or no return value to continue or false to abort
 	 */
-	public function onThumbroBeforeProduceHtml( ThumbroThumbnailImage $thumbnail, array &$sources );
+	public function onThumbroBeforeProduceHtml( ThumbnailImage $thumbnail, array &$sources );
 }
