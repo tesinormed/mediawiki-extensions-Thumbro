@@ -16,19 +16,19 @@
 > 			unset( $attribs['srcset'] );
 > 		}
 > 		( new ThumbroHookRunner( $hookContainer ) )->onThumbroBeforeProduceHtml( $this, $sources );
->
+> 
 > 		$p = Html::openElement('picture');
->
+> 
 > 		foreach ( $sources as $source ) {
 > 			// <source> should always have a valid srcset when inside <picture>
 > 			if (!$source['srcset'] ) {
 > 				continue;
 > 			}
->
+> 
 > 			$sourceAttribs = [
 > 				'srcset' => $source['srcset'],
 > 			];
->
+> 
 > 			if ( !empty( $source['type'] ) ) {
 > 				$sourceAttribs['type'] = $source['type'];
 > 			}
@@ -44,15 +44,15 @@
 > 			if ( !empty($source['height'] ) && !empty( $attribs['height'] ) && $source['height'] !== $attribs['height'] ) {
 > 				$sourceAttribs['height'] = $source['height'];
 > 			}
->
+> 
 > 			$p .= Html::element( 'source', $sourceAttribs );
 > 		}
->
+> 
 > 		// Original image
 > 		$p .= Html::element( 'img', $attribs );
->
+> 
 > 		$p .= Html::closeElement( 'picture' );
->
+> 
 > 		$sourceLink = Html::rawElement(
 > 			'a',
 > 			[
@@ -63,5 +63,5 @@
 > 			],
 > 			'<!-- Image link for Crawlers -->'
 > 		);
->
+> 
 > 		return $this->linkWrap( $linkAttribs, $p ) . $sourceLink;
