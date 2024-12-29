@@ -58,20 +58,12 @@
 				"image/jpeg": {
 					"enabled": true,
 					"library": "libvips",
-					"inputOptions": {},
-					"outputOptions": {
-						"strip": "true",
-						"Q": "80"
-					}
+					"inputOptions": {}
 				},
 				"image/png": {
 					"enabled": true,
 					"library": "libvips",
-					"inputOptions": {},
-					"outputOptions": {
-						"strip": "true",
-						"filter": "VIPS_FOREIGN_PNG_FILTER_ALL"
-					}
+					"inputOptions": {}
 				},
 				"image/webp": {
 					"enabled": true,
