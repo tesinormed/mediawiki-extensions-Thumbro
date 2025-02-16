@@ -2,5 +2,6 @@
 	"@metadata": {
 		"authors": []
 	},
-	"thumbro-desc": "Improve and expand thumbnailing in MediaWiki"
+	"thumbro-desc": "Improve and expand thumbnailing in MediaWiki",
+	"thumbro-view-source-image": "View source image"
 }

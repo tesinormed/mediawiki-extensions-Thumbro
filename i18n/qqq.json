@@ -6,5 +6,6 @@
 			"Umherirrender"
 		]
 	},
-	"thumbro-desc": "{{desc|name=Thumbro|url=https://www.mediawiki.org/wiki/Extension:Thumbro}}"
+	"thumbro-desc": "{{desc|name=Thumbro|url=https://www.mediawiki.org/wiki/Extension:Thumbro}}",
+	"thumbro-view-source-image": "Title for the hidden link used by web crawlers to view the source image"
 }

@@ -1,6 +1,6 @@
 <?php
 
-namespace MediaWiki\Extension\Thumbro\Hooks;
+namespace MediaWiki\Extension\Thumbro\Hook;
 
 use MediaWiki\HookContainer\HookContainer;
 use ThumbnailImage;

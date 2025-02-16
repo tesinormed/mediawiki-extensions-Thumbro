@@ -1,6 +1,6 @@
 {
 	"name": "Thumbro",
-	"version": "0.2.0",
+	"version": "0.3.0",
 	"author": [
 		"tesinormed",
 		"[https://www.mediawiki.org/wiki/User:Alistair3149 Alistair3149]",
@@ -11,76 +11,40 @@
 	"license-name": "GPL-2.0-or-later",
 	"type": "media",
 	"requires": {
-		"MediaWiki": ">= 1.42"
+		"MediaWiki": ">= 1.43"
 	},
 	"AutoloadNamespaces": {
 		"MediaWiki\\Extension\\Thumbro\\": "includes/"
 	},
-	"MessagesDirs": {
-		"Thumbro": "i18n"
-	},
 	"ExtensionFunctions": [
-		"MediaWiki\\Extension\\Thumbro\\Hooks\\MediaWikiHooks::initThumbro"
+		"MediaWiki\\Extension\\Thumbro\\Hook\\HookHandler::postSetup"
 	],
-	"Hooks": {
-		"BitmapHandlerTransform": "main",
-		"BitmapHandlerCheckImageArea": "main",
-		"SoftwareInfo": "main"
-	},
-	"HookHandlers": {
-		"main": {
-			"class": "MediaWiki\\Extension\\Thumbro\\Hooks\\MediaWikiHooks",
-			"services": [
-				"ConfigFactory"
-			]
-		}
-	},
 	"config": {
-		"ThumbroEnabled": {
-			"value": true
-		},
-		"ThumbroLibraries": {
-			"value": {
-				"libvips": {
-					"command": "/usr/bin/vipsthumbnail"
-				}
-			}
-		},
 		"ThumbroOptions": {
 			"value": {
 				"image/gif": {
-					"enabled": true,
-					"library": "libvips",
 					"inputOptions": {
 						"n": "-1"
 					}
 				},
 				"image/jpeg": {
-					"enabled": true,
-					"library": "libvips",
 					"inputOptions": {}
 				},
 				"image/png": {
-					"enabled": true,
-					"library": "libvips",
 					"inputOptions": {}
 				},
 				"image/webp": {
-					"enabled": true,
-					"library": "libvips",
 					"inputOptions": {},
 					"outputOptions": {
 						"strip": "true",
-						"Q": "90",
+						"Q": "75",
 						"smart_subsample": "true"
 					}
 				},
 				"image/avif": {
-					"enabled": true,
-					"library": "libvips",
 					"outputOptions": {
 						"strip": "true",
-						"Q": "90",
+						"Q": "50",
 						"encoder": "aom"
 					}
 				}
@@ -90,5 +54,22 @@
 	"ConfigRegistry": {
 		"thumbro": "GlobalVarConfig::newInstance"
 	},
+	"HookHandlers": {
+		"main": {
+			"class": "MediaWiki\\Extension\\Thumbro\\Hook\\HookHandler",
+			"services": [
+				"ConfigFactory"
+			]
+		}
+	},
+	"Hooks": {
+		"BitmapHandlerTransform": "main",
+		"BitmapHandlerCheckImageArea": "main",
+		"SoftwareInfo": "main"
+	},
+	"MessagesDirs": {
+		"Thumbro": "i18n"
+	},
+	"load_composer_autoloader": true,
 	"manifest_version": 2
 }

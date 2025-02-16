@@ -1,13 +1,11 @@
 <?php
 
-declare( strict_types=1 );
-
 namespace MediaWiki\Extension\Thumbro;
 
-use MediaWiki\Extension\Thumbro\MediaHandlers\ThumbroGIFHandler;
-use MediaWiki\Extension\Thumbro\MediaHandlers\ThumbroJpegHandler;
-use MediaWiki\Extension\Thumbro\MediaHandlers\ThumbroPNGHandler;
-use MediaWiki\Extension\Thumbro\MediaHandlers\ThumbroWebPHandler;
+use MediaWiki\Extension\Thumbro\MediaHandler\ThumbroGIFHandler;
+use MediaWiki\Extension\Thumbro\MediaHandler\ThumbroJpegHandler;
+use MediaWiki\Extension\Thumbro\MediaHandler\ThumbroPNGHandler;
+use MediaWiki\Extension\Thumbro\MediaHandler\ThumbroWebPHandler;
 
 class MediaHandlers {
 	public const HANDLERS = [

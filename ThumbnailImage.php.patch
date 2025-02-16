@@ -1,5 +1,5 @@
 24a25
-> use MediaWiki\Extension\Thumbro\Hooks\HookRunner as ThumbroHookRunner;
+> use MediaWiki\Extension\Thumbro\Hook\HookRunner as ThumbroHookRunner;
 222,223c223,224
 < 		( new HookRunner( $services->getHookContainer() ) )
 < 			->onThumbnailBeforeProduceHTML( $this, $attribs, $linkAttribs );
@@ -58,10 +58,8 @@
 > 			[
 > 				'href' => $this->file->getUrl(),
 > 				'class' => 'mw-file-source',
-> 				// FIXME: Need i18n
-> 				'title' => 'View source image'
-> 			],
-> 			'<!-- Image link for Crawlers -->'
+> 				'title' => wfMessage( 'thumbro-view-source-image' )->text()
+> 			]
 > 		);
 > 
 > 		return $this->linkWrap( $linkAttribs, $p ) . $sourceLink;
