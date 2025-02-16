@@ -6,7 +6,7 @@
 ---
 > 		$hookContainer = $services->getHookContainer();
 > 		( new HookRunner( $hookContainer ) )->onThumbnailBeforeProduceHTML( $this, $attribs, $linkAttribs );
-225c226,281
+225c226,279
 < 		return $this->linkWrap( $linkAttribs, Xml::element( 'img', $attribs ) );
 ---
 > 		$sources = [];
