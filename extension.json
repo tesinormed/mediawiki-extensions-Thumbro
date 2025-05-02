@@ -1,6 +1,6 @@
 {
 	"name": "Thumbro",
-	"version": "0.3.0",
+	"version": "0.3.1",
 	"author": [
 		"tesinormed",
 		"[https://www.mediawiki.org/wiki/User:Alistair3149 Alistair3149]",
@@ -23,28 +23,28 @@
 		"ThumbroOptions": {
 			"value": {
 				"image/gif": {
-					"inputOptions": {
-						"n": "-1"
+					"input": {
+						"option-string": "n=-1"
 					}
 				},
 				"image/jpeg": {
-					"inputOptions": {}
+					"input": {}
 				},
 				"image/png": {
-					"inputOptions": {}
+					"input": {}
 				},
 				"image/webp": {
-					"inputOptions": {},
-					"outputOptions": {
+					"input": {},
+					"output": {
 						"strip": "true",
-						"Q": "75",
+						"Q": "90",
 						"smart_subsample": "true"
 					}
 				},
 				"image/avif": {
-					"outputOptions": {
+					"output": {
 						"strip": "true",
-						"Q": "50",
+						"Q": "90",
 						"encoder": "aom"
 					}
 				}

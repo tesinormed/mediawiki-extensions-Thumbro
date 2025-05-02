@@ -47,10 +47,10 @@ class HookHandler implements
 		$dstUrl = $scalerParams['dstUrl'];
 
 		try {
-			$vipsImage = Image::thumbnail(
-				$srcPath,
+			$vipsImage = Image::thumbnail_buffer(
+				file_get_contents( $srcPath ),
 				$width,
-				$this->getInputOptions( $srcMimeType ) + [ 'height' => $height ]
+				[ 'height' => $height ] + $this->getInputOptions( $srcMimeType )
 			);
 			$vipsImage->writeToFile( $dstPath, $this->getOutputOptions( $dstMimeType ) );
 			$mto = new ThumbnailImage(
@@ -86,10 +86,10 @@ class HookHandler implements
 	}
 
 	private function getInputOptions( string $mimeType ): array {
-		return $this->config->get( 'ThumbroOptions' )[$mimeType]['inputOptions'] ?? [];
+		return $this->config->get( 'ThumbroOptions' )[$mimeType]['input'] ?? [];
 	}
 
 	private function getOutputOptions( string $mimeType ): array {
-		return $this->config->get( 'ThumbroOptions' )[$mimeType]['outputOptions'] ?? [];
+		return $this->config->get( 'ThumbroOptions' )[$mimeType]['output'] ?? [];
 	}
 }
