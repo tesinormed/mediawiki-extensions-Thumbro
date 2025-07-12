@@ -1,6 +1,6 @@
 {
 	"require": {
-		"jcupitt/vips": "2.4.1"
+		"jcupitt/vips": "2.5.0"
 	},
 	"require-dev": {
 		"mediawiki/mediawiki-codesniffer": "45.0.0",

@@ -47,8 +47,8 @@ class HookHandler implements
 		$dstUrl = $scalerParams['dstUrl'];
 
 		try {
-			$vipsImage = Image::thumbnail_buffer(
-				file_get_contents( $srcPath ),
+			$vipsImage = Image::thumbnail(
+				$srcPath,
 				$width,
 				[ 'height' => $height ] + $this->getInputOptions( $srcMimeType )
 			);
