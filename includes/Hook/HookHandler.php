@@ -46,11 +46,20 @@ class HookHandler implements
 		$dstMimeType = $handler->getThumbType( $image->getExtension(), $srcMimeType )[1];
 		$dstUrl = $scalerParams['dstUrl'];
 
+		$inputOptions = $this->getInputOptions( $srcMimeType );
+		if ( !empty( $inputOptions ) ) {
+			$srcPath .= '[' . implode( ',', array_map(
+				static fn ( $k, $v ) => "$k=$v",
+				array_keys( $inputOptions ),
+				$inputOptions
+			) ) . ']';
+		}
+
 		try {
 			$vipsImage = Image::thumbnail(
 				$srcPath,
 				$width,
-				[ 'height' => $height ] + $this->getInputOptions( $srcMimeType )
+				[ 'height' => $height ]
 			);
 			$vipsImage->writeToFile( $dstPath, $this->getOutputOptions( $dstMimeType ) );
 			$mto = new ThumbnailImage(

@@ -10,7 +10,7 @@
 < 		return $this->linkWrap( $linkAttribs, Xml::element( 'img', $attribs ) );
 ---
 > 		$sources = [];
-> 		if ( isset ($attribs[ 'srcset' ] ) ) {
+> 		if ( isset( $attribs['srcset'] ) ) {
 > 			// Move srcset from img to source element
 > 			$sources[] = [ 'srcset' => $this->url . ', ' . $attribs['srcset'] ];
 > 			unset( $attribs['srcset'] );
@@ -21,7 +21,7 @@
 > 
 > 		foreach ( $sources as $source ) {
 > 			// <source> should always have a valid srcset when inside <picture>
-> 			if (!$source['srcset'] ) {
+> 			if ( !isset( $source['srcset'] ) ) {
 > 				continue;
 > 			}
 > 
@@ -29,19 +29,19 @@
 > 				'srcset' => $source['srcset'],
 > 			];
 > 
-> 			if ( !empty( $source['type'] ) ) {
+> 			if ( isset( $source['type'] ) ) {
 > 				$sourceAttribs['type'] = $source['type'];
 > 			}
-> 			if ( !empty( $source['sizes'] ) ) {
+> 			if ( isset( $source['sizes'] ) ) {
 > 				$sourceAttribs['sizes'] = $source['sizes'];
 > 			}
-> 			if ( !empty( $source['media'] ) ) {
+> 			if ( isset( $source['media'] ) ) {
 > 				$sourceAttribs['media'] = $source['media'];
 > 			}
-> 			if ( !empty($source['width'] ) && !empty( $attribs['width'] ) && $source['width'] !== $attribs['width'] ) {
+> 			if ( isset( $source['width'] ) && isset( $attribs['width'] ) && $source['width'] !== $attribs['width'] ) {
 > 				$sourceAttribs['width'] = $source['width'];
 > 			}
-> 			if ( !empty($source['height'] ) && !empty( $attribs['height'] ) && $source['height'] !== $attribs['height'] ) {
+> 			if ( isset( $source['height'] ) && isset( $attribs['height'] ) && $source['height'] !== $attribs['height'] ) {
 > 				$sourceAttribs['height'] = $source['height'];
 > 			}
 > 
