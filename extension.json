@@ -1,6 +1,6 @@
 {
 	"name": "Thumbro",
-	"version": "0.4.1",
+	"version": "0.5.0",
 	"author": [
 		"tesinormed",
 		"[https://www.mediawiki.org/wiki/User:Alistair3149 Alistair3149]",
@@ -11,7 +11,11 @@
 	"license-name": "GPL-2.0-or-later",
 	"type": "media",
 	"requires": {
-		"MediaWiki": ">= 1.43"
+		"MediaWiki": ">= 1.43",
+		"platform": {
+			"php": ">= 8.1",
+			"ext-ffi": "*"
+		}
 	},
 	"AutoloadNamespaces": {
 		"MediaWiki\\Extension\\Thumbro\\": "includes/"
@@ -44,8 +48,7 @@
 				"image/avif": {
 					"output": {
 						"strip": "true",
-						"Q": "90",
-						"encoder": "aom"
+						"Q": "90"
 					}
 				}
 			}
